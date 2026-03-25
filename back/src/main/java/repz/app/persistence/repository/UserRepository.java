@@ -1,4 +1,4 @@
-package repz.app.repository;
+package repz.app.persistence.repository;
 
 import java.util.List;
 import java.util.Optional;
@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
-import repz.app.domain.user.User;
+import repz.app.persistence.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {

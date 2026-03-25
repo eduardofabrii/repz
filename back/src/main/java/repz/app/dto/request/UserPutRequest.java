@@ -2,7 +2,7 @@ package repz.app.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import repz.app.domain.user.UserRole;
+import repz.app.persistence.entity.UserRole;
 
 public record UserPutRequest(
     @NotBlank(message = "Nome é obrigatório")
