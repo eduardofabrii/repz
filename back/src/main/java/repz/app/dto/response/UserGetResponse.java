@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import repz.app.domain.user.UserRole;
+import repz.app.persistence.entity.UserRole;
 
 public record UserGetResponse(
-    Integer id,
+    Long id,
     String name,
     String email,
 

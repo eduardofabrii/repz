@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS usuario (
+     id BIGSERIAL PRIMARY KEY,
+     nome VARCHAR(150) NOT NULL,
+     email VARCHAR(150) NOT NULL UNIQUE,
+     senha VARCHAR(255) NOT NULL,
+     perfil VARCHAR(50) NOT NULL,
+     ativo BOOLEAN NOT NULL DEFAULT TRUE,
+     ultimo_login TIMESTAMP,
+     data_inclusao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     data_alteracao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+     nome_usuario VARCHAR(50),
+     data_delecao TIMESTAMP
+);

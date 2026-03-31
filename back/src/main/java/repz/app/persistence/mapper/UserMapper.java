@@ -1,8 +1,8 @@
-package repz.app.mapper;
+package repz.app.persistence.mapper;
 
 import org.springframework.stereotype.Component;
 
-import repz.app.domain.user.User;
+import repz.app.persistence.entity.User;
 import repz.app.dto.response.UserGetResponse;
 
 @Component

@@ -1,4 +1,4 @@
-package repz.app.domain.user;
+package repz.app.persistence.entity;
 
 public enum UserRole {
     ADMIN,
