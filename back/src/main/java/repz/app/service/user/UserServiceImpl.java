@@ -7,12 +7,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import repz.app.domain.user.User;
+import repz.app.persistence.entity.User;
 import repz.app.dto.auth.RegistrationDTO;
 import repz.app.dto.request.UserPutRequest;
 import repz.app.dto.response.UserGetResponse;
-import repz.app.mapper.UserMapper;
-import repz.app.repository.UserRepository;
+import repz.app.persistence.mapper.UserMapper;
+import repz.app.persistence.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateLastLogin(String email) {
         UserDetails userDetails = userRepository.findByEmail(email);
-        if (userDetails != null && userDetails instanceof User user) {
+        if (userDetails instanceof User user) {
             user.setLastLogin(java.time.LocalDateTime.now());
             userRepository.save(user);
         }
