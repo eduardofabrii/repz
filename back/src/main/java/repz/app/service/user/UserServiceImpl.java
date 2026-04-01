@@ -2,6 +2,7 @@ package repz.app.service.user;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserGetResponse> findAllUsers() {
         return userRepository.findAll()
             .stream()
@@ -31,6 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("isAuthenticated()")
     public UserGetResponse findUserById(Integer id) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
@@ -61,6 +64,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void updateUser(Integer id, UserPutRequest userPutRequest) {
         User user = userRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
@@ -70,11 +74,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(Integer id) {
         userRepository.deleteById(id);
     }
 
     @Override
+    @PreAuthorize("hasRole('ADMIN')")
     public void restoreUser(Integer id) {
         throw new UnsupportedOperationException("Não implementado ainda");
     }
