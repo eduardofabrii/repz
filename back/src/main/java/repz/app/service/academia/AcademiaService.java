@@ -15,6 +15,7 @@ import repz.app.persistence.repository.UserRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 @RequiredArgsConstructor
 @Transactional
 public class AcademiaService {
