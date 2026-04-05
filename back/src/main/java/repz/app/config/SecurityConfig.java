@@ -41,10 +41,18 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                     // Rotas públicas para todos
-                    .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/v1/user").permitAll()
-                    
+                    .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/refresh", "/auth/logout", "/v1/user").permitAll()
+
+                    .requestMatchers(
+                        "/v3/api-docs/**",
+                        "/v3/api-docs.yaml",
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/swagger-resources/**",
+                        "/webjars/**"
+                    ).permitAll()
+
+                    .requestMatchers("/error").permitAll()
                     
                     .anyRequest().authenticated()
                 )
@@ -80,7 +88,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder alternativePasswordEncoder() {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

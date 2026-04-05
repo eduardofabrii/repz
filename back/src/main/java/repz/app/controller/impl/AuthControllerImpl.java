@@ -17,7 +17,6 @@ import repz.app.service.user.UserService;
 import java.util.Objects;
 
 @RestController
-@RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthControllerImpl implements AuthController {
 
@@ -40,7 +39,7 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         return ResponseEntity.noContent().build();
     }
 
