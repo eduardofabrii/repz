@@ -2,7 +2,7 @@ package repz.app.persistence.entity;
 
 public enum UserRole {
     ADMIN,
-    USER,
+    ACADEMIA,
     PERSONAL,
-    GYM
+    USUARIO
 }
