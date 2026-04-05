@@ -8,8 +8,10 @@ import repz.app.service.personal.PersonalService;
 
 import java.util.List;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -34,5 +36,14 @@ public class PersonalController {
         return personalService.savePersonal(personal);
     }
     
+    @PutMapping("/{id}")
+    public Personal updatePersonal(@RequestBody Personal personal) {
+        return personalService.updatePersonal(personal);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deletePersonal(@RequestBody Long id) {
+        personalService.deletePersonal(id);
+    }
     
 }

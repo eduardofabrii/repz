@@ -7,6 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -28,15 +29,21 @@ public class Personal {
     @NotNull
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "id_academia")
+    @NotNull
+    private Academia academia;
+
     private String especialidade;
 
     public Personal() {}
 
-    public Personal(Long id, String especialidades, Boolean ativo, User user) {
+    public Personal(Long id, String especialidades, Boolean ativo, User user, Academia academia) {
         this.id = id;
         this.especialidades = especialidades;
         this.ativo = ativo;
         this.user = user;
+        this.academia = academia;
     }
 
 
@@ -79,5 +86,12 @@ public class Personal {
         this.ativo = ativo;
     }
 
+    public Academia getAcademia() {
+        return academia;
+    }
+
+    public void setAcademia(Academia academia) {
+        this.academia = academia;
+    }
 
 }
