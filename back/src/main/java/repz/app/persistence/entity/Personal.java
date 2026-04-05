@@ -28,6 +28,8 @@ public class Personal {
     @NotNull
     private User user;
 
+    private String especialidade;
+
     public Personal() {}
 
     public Personal(Long id, String especialidades, Boolean ativo, User user) {
@@ -46,11 +48,11 @@ public class Personal {
         this.id = id;
     }
 
-    public List<String> getEspecialidade() {
+    public String getEspecialidade() {
         return especialidade;
     }
 
-    public void setEspecialidade(List<String> especialidade) {
+    public void setEspecialidade(String especialidade) {
         this.especialidade = especialidade;
     }
 
