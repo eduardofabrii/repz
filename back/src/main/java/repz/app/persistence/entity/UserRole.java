@@ -4,5 +4,6 @@ public enum UserRole {
     ADMIN,
     ACADEMIA,
     PERSONAL,
-    USUARIO
+    USUARIO,
+    
 }
