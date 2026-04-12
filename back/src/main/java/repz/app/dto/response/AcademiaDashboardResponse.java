@@ -1,4 +1,4 @@
-package repz.app.dto.academia;
+package repz.app.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AcademiaDashboardDTO {
+public class AcademiaDashboardResponse {
     private Long totalAcademies;
     private Integer totalStudents;
     private Integer totalInstructors;
@@ -15,3 +15,4 @@ public class AcademiaDashboardDTO {
     private Integer totalInactiveAcademies;
     private Double averageStudentsPerAcademy;
 }
+

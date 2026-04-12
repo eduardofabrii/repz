@@ -1,10 +1,10 @@
 package repz.app.exception;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
@@ -25,7 +25,7 @@ public class ErrorResponse {
         this.status = status;
         this.message = message;
     }
-    
+
     public ErrorResponse(int status, String message, String details) {
         this();
         this.status = status;

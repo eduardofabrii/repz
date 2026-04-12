@@ -3,9 +3,10 @@ package repz.app.service.academia;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import repz.app.dto.academia.AcademiaDashboardDTO;
-import repz.app.dto.academia.AcademiaRequestDTO;
-import repz.app.dto.academia.AcademiaResponseDTO;
+import repz.app.dto.request.AcademiaCreateRequest;
+import repz.app.dto.request.AcademiaUpdateRequest;
+import repz.app.dto.response.AcademiaDashboardResponse;
+import repz.app.dto.response.AcademiaResponse;
 import repz.app.persistence.entity.Academia;
 import repz.app.persistence.entity.User;
 import repz.app.persistence.mapper.AcademiaMapper;
@@ -24,10 +25,7 @@ public class AcademiaService {
     private final UserRepository userRepository;
     private final AcademiaMapper academiaMapper;
 
-    /**
-     * RF06: Cadastrar Academia (apenas ADMIN)
-     */
-    public AcademiaResponseDTO createAcademia(AcademiaRequestDTO dto) {
+    public AcademiaResponse criar(AcademiaCreateRequest dto) {
         if (academiaRepository.findByCnpj(dto.getCnpj()).isPresent()) {
             throw new IllegalArgumentException("Academia com este CNPJ já existe");
         }
@@ -37,46 +35,33 @@ public class AcademiaService {
         return academiaMapper.toResponseDTO(saved);
     }
 
-    /**
-     * RF07: Listar todas as academias (apenas ADMIN)
-     */
     @Transactional(readOnly = true)
-    public List<AcademiaResponseDTO> listAllAcademias() {
+    public List<AcademiaResponse> listarTodas() {
         return academiaRepository.findAll().stream()
                 .map(academiaMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * RF07: Listar academias ativas (apenas ADMIN)
-     */
     @Transactional(readOnly = true)
-    public List<AcademiaResponseDTO> listActiveAcademias() {
+    public List<AcademiaResponse> listarAativas() {
         return academiaRepository.findByActiveTrue().stream()
                 .map(academiaMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * RF07: Buscar academia por ID (apenas ADMIN)
-     */
     @Transactional(readOnly = true)
-    public AcademiaResponseDTO getAcademiaById(Long id) {
+    public AcademiaResponse obterPorId(Long id) {
         Academia academia = academiaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Academia não encontrada"));
         return academiaMapper.toResponseDTO(academia);
     }
 
-    /**
-     * RF07: Editar academia (apenas ADMIN)
-     */
-    public AcademiaResponseDTO updateAcademia(Long id, AcademiaRequestDTO dto) {
+    public AcademiaResponse atualizar(Long id, AcademiaUpdateRequest dto) {
         Academia academia = academiaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Academia não encontrada"));
 
-        // Verificar se está tentando mudar o CNPJ para um que já existe
-        if (!academia.getCnpj().equals(dto.getCnpj()) && 
-            academiaRepository.findByCnpj(dto.getCnpj()).isPresent()) {
+        if (!academia.getCnpj().equals(dto.getCnpj()) &&
+                academiaRepository.findByCnpj(dto.getCnpj()).isPresent()) {
             throw new IllegalArgumentException("Outro CNPJ já existe com esse valor");
         }
 
@@ -86,10 +71,7 @@ public class AcademiaService {
         return academiaMapper.toResponseDTO(updated);
     }
 
-    /**
-     * RF07: Inativar academia (apenas ADMIN) - soft delete via PATCH
-     */
-    public AcademiaResponseDTO deactivateAcademia(Long id) {
+    public AcademiaResponse inativar(Long id) {
         Academia academia = academiaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Academia não encontrada"));
 
@@ -98,13 +80,10 @@ public class AcademiaService {
         return academiaMapper.toResponseDTO(updated);
     }
 
-    /**
-     * RF08: Visualizar dados da própria academia (perfil ACADEMIA/GYM)
-     */
     @Transactional(readOnly = true)
-    public AcademiaResponseDTO getOwnAcademia(User currentUser) {
+    public AcademiaResponse obterMinha(User currentUser) {
         List<Academia> academias = academiaRepository.findByResponsibleUserId(currentUser.getId());
-        
+
         if (academias.isEmpty()) {
             throw new IllegalArgumentException("Usuário não possui academia associada");
         }
@@ -112,19 +91,15 @@ public class AcademiaService {
         return academiaMapper.toResponseDTO(academias.get(0));
     }
 
-    /**
-     * RF08: Editar própria academia (perfil ACADEMIA/GYM)
-     */
-    public AcademiaResponseDTO updateOwnAcademia(User currentUser, AcademiaRequestDTO dto) {
+    public AcademiaResponse atualizarMinha(User currentUser, AcademiaUpdateRequest dto) {
         List<Academia> academias = academiaRepository.findByResponsibleUserId(currentUser.getId());
-        
+
         if (academias.isEmpty()) {
             throw new IllegalArgumentException("Usuário não possui academia associada");
         }
 
         Academia academia = academias.get(0);
-        
-        // Não permitir mudança de CNPJ
+
         if (!academia.getCnpj().equals(dto.getCnpj())) {
             throw new IllegalArgumentException("Não é permitido alterar o CNPJ da academia");
         }
@@ -134,11 +109,8 @@ public class AcademiaService {
         return academiaMapper.toResponseDTO(updated);
     }
 
-    /**
-     * RF09: Dashboard com métricas de todas as academias (apenas ADMIN)
-     */
     @Transactional(readOnly = true)
-    public AcademiaDashboardDTO getDashboardMetrics() {
+    public AcademiaDashboardResponse obterDashboard() {
         List<Academia> allAcademias = academiaRepository.findAll();
         List<Academia> activeAcademias = academiaRepository.findByActiveTrue();
 
@@ -153,7 +125,7 @@ public class AcademiaService {
         int totalInactive = (int) (totalAcademies - totalActive);
         double averageStudents = totalAcademies > 0 ? (double) totalStudents / totalAcademies : 0;
 
-        return new AcademiaDashboardDTO(
+        return new AcademiaDashboardResponse(
                 totalAcademies,
                 totalStudents,
                 totalInstructors,

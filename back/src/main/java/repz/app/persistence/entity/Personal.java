@@ -1,8 +1,8 @@
 package repz.app.persistence.entity;
 
-import java.util.List;
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -11,17 +11,27 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "personal")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Personal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String especialidades;
+    @Column(name = "especialidades")
+    private String especialidade;
 
+    @Column(name = "ativo")
     private Boolean ativo;
 
     @OneToOne
@@ -29,69 +39,17 @@ public class Personal {
     @NotNull
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_academia")
-    @NotNull
     private Academia academia;
 
-    private String especialidade;
+    @Column(name = "data_inclusao")
+    private LocalDateTime dtInclusao;
 
-    public Personal() {}
+    @Column(name = "data_alteracao")
+    private LocalDateTime dtAlteracao;
 
-    public Personal(Long id, String especialidades, Boolean ativo, User user, Academia academia) {
-        this.id = id;
-        this.especialidades = especialidades;
-        this.ativo = ativo;
-        this.user = user;
-        this.academia = academia;
-    }
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getEspecialidade() {
-        return especialidade;
-    }
-
-    public void setEspecialidade(String especialidade) {
-        this.especialidade = especialidade;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-    public String getEspecialidades() {
-        return especialidades;
-    }
-
-    public void setEspecialidades(String especialidades) {
-        this.especialidades = especialidades;
-    }
-
-    public Boolean getAtivo() {
-        return ativo;
-    }
-
-    public void setAtivo(Boolean ativo) {
-        this.ativo = ativo;
-    }
-
-    public Academia getAcademia() {
-        return academia;
-    }
-
-    public void setAcademia(Academia academia) {
-        this.academia = academia;
-    }
+    @Column(name = "nome_usuario")
+    private String nomeUsuario;
 
 }

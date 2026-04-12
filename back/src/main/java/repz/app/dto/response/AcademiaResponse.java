@@ -1,4 +1,4 @@
-package repz.app.dto.academia;
+package repz.app.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AcademiaResponseDTO {
+public class AcademiaResponse {
     private Long id;
     private String cnpj;
     private String name;
@@ -21,10 +21,11 @@ public class AcademiaResponseDTO {
     private Boolean active;
     private Integer totalStudents;
     private Integer totalInstructors;
-    
+
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime createdAt;
-    
+
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime updatedAt;
 }
+

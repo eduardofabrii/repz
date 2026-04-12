@@ -1,19 +1,20 @@
 package repz.app.persistence.mapper;
 
 import org.springframework.stereotype.Component;
-import repz.app.dto.academia.AcademiaRequestDTO;
-import repz.app.dto.academia.AcademiaResponseDTO;
+import repz.app.dto.request.AcademiaCreateRequest;
+import repz.app.dto.request.AcademiaUpdateRequest;
+import repz.app.dto.response.AcademiaResponse;
 import repz.app.persistence.entity.Academia;
 
 @Component
 public class AcademiaMapper {
 
-    public AcademiaResponseDTO toResponseDTO(Academia academia) {
+    public AcademiaResponse toResponseDTO(Academia academia) {
         if (academia == null) {
             return null;
         }
 
-        return new AcademiaResponseDTO(
+        return new AcademiaResponse(
                 academia.getId(),
                 academia.getCnpj(),
                 academia.getName(),
@@ -29,7 +30,7 @@ public class AcademiaMapper {
         );
     }
 
-    public Academia toEntity(AcademiaRequestDTO dto) {
+    public Academia toEntity(AcademiaCreateRequest dto) {
         if (dto == null) {
             return null;
         }
@@ -48,7 +49,7 @@ public class AcademiaMapper {
         return academia;
     }
 
-    public void updateEntity(AcademiaRequestDTO dto, Academia academia) {
+    public void updateEntity(AcademiaUpdateRequest dto, Academia academia) {
         if (dto == null || academia == null) {
             return;
         }
