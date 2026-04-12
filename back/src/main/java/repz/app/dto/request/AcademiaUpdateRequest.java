@@ -1,4 +1,4 @@
-package repz.app.dto.academia;
+package repz.app.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AcademiaRequestDTO {
+public class AcademiaUpdateRequest {
 
     @NotBlank(message = "CNPJ é obrigatório")
     @Pattern(regexp = "^\\d{14}$", message = "CNPJ deve conter 14 dígitos")
@@ -30,3 +30,4 @@ public class AcademiaRequestDTO {
 
     private String phone;
 }
+

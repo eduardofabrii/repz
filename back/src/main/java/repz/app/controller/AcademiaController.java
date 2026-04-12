@@ -2,72 +2,47 @@ package repz.app.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import repz.app.dto.academia.AcademiaDashboardDTO;
-import repz.app.dto.academia.AcademiaRequestDTO;
-import repz.app.dto.academia.AcademiaResponseDTO;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import repz.app.dto.request.AcademiaCreateRequest;
+import repz.app.dto.request.AcademiaUpdateRequest;
+import repz.app.dto.response.AcademiaDashboardResponse;
+import repz.app.dto.response.AcademiaResponse;
 
 import java.util.List;
 
 @RequestMapping("/academias")
 public interface AcademiaController {
 
-    /**
-     * RF06: Cadastrar Academia (apenas ADMIN)
-     * POST /academias
-     */
     @PostMapping
-    ResponseEntity<AcademiaResponseDTO> createAcademia(@RequestBody @Valid AcademiaRequestDTO dto);
+    ResponseEntity<AcademiaResponse> criar(@RequestBody @Valid AcademiaCreateRequest dto);
 
-    /**
-     * RF07: Listar todas as academias (apenas ADMIN)
-     * GET /academias
-     */
     @GetMapping
-    ResponseEntity<List<AcademiaResponseDTO>> listAcademias();
+    ResponseEntity<List<AcademiaResponse>> listar();
 
-    /**
-     * RF07: Buscar academia por ID (apenas ADMIN)
-     * GET /academias/{id}
-     */
     @GetMapping("/{id}")
-    ResponseEntity<AcademiaResponseDTO> getAcademiaById(@PathVariable Long id);
+    ResponseEntity<AcademiaResponse> obterPorId(@PathVariable Long id);
 
-    /**
-     * RF07: Editar academia (apenas ADMIN)
-     * PUT /academias/{id}
-     */
     @PutMapping("/{id}")
-    ResponseEntity<AcademiaResponseDTO> updateAcademia(
+    ResponseEntity<AcademiaResponse> atualizar(
             @PathVariable Long id,
-            @RequestBody @Valid AcademiaRequestDTO dto
+            @RequestBody @Valid AcademiaUpdateRequest dto
     );
 
-    /**
-     * RF07: Inativar academia (apenas ADMIN)
-     * PATCH /academias/{id}
-     */
     @PatchMapping("/{id}")
-    ResponseEntity<AcademiaResponseDTO> deactivateAcademia(@PathVariable Long id);
+    ResponseEntity<AcademiaResponse> inativar(@PathVariable Long id);
 
-    /**
-     * RF08: Visualizar dados da própria academia (perfil ACADEMIA)
-     * GET /academias/me
-     */
     @GetMapping("/me")
-    ResponseEntity<AcademiaResponseDTO> getOwnAcademia();
+    ResponseEntity<AcademiaResponse> obterMinha();
 
-    /**
-     * RF08: Editar própria academia (perfil ACADEMIA)
-     * PUT /academias/me
-     */
     @PutMapping("/me")
-    ResponseEntity<AcademiaResponseDTO> updateOwnAcademia(@RequestBody @Valid AcademiaRequestDTO dto);
+    ResponseEntity<AcademiaResponse> atualizarMinha(@RequestBody @Valid AcademiaUpdateRequest dto);
 
-    /**
-     * RF09: Dashboard com métricas (apenas ADMIN)
-     * GET /academias/dashboard
-     */
     @GetMapping("/dashboard")
-    ResponseEntity<AcademiaDashboardDTO> getDashboard();
+    ResponseEntity<AcademiaDashboardResponse> obterDashboard();
 }

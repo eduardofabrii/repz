@@ -10,7 +10,10 @@ import java.util.Optional;
 @Repository
 public interface AcademiaRepository extends JpaRepository<Academia, Long> {
     Optional<Academia> findByCnpj(String cnpj);
+
     List<Academia> findByActiveTrue();
+
     Optional<Academia> findByIdAndActiveTrue(Long id);
+
     List<Academia> findByResponsibleUserId(Long userId);
 }

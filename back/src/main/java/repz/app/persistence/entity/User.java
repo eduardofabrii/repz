@@ -1,18 +1,7 @@
 package repz.app.persistence.entity;
 
-import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.List;
-
-import lombok.*;
-import org.jspecify.annotations.NullMarked;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,7 +10,20 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import org.jspecify.annotations.NullMarked;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import repz.app.persistence.entity.common.AuditoriaBase;
+
+import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -34,7 +36,7 @@ public class User extends AuditoriaBase implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(name = "nome")
     private String name;
 
@@ -47,7 +49,7 @@ public class User extends AuditoriaBase implements UserDetails {
     @Column(name = "ultimo_login")
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private LocalDateTime lastLogin;
-    
+
     @Column(name = "perfil")
     @Enumerated(EnumType.STRING)
     private UserRole role;
@@ -63,19 +65,19 @@ public class User extends AuditoriaBase implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return switch (this.role) {
             case ADMIN -> List.of(
-                new SimpleGrantedAuthority("ROLE_ADMIN"),
-                new SimpleGrantedAuthority("ROLE_ACADEMIA"),
-                new SimpleGrantedAuthority("ROLE_PERSONAL"),
-                new SimpleGrantedAuthority("ROLE_USUARIO")
+                    new SimpleGrantedAuthority("ROLE_ADMIN"),
+                    new SimpleGrantedAuthority("ROLE_ACADEMIA"),
+                    new SimpleGrantedAuthority("ROLE_PERSONAL"),
+                    new SimpleGrantedAuthority("ROLE_USUARIO")
             );
             case ACADEMIA -> List.of(
-                new SimpleGrantedAuthority("ROLE_ACADEMIA"),
-                new SimpleGrantedAuthority("ROLE_PERSONAL"),
-                new SimpleGrantedAuthority("ROLE_USUARIO")
+                    new SimpleGrantedAuthority("ROLE_ACADEMIA"),
+                    new SimpleGrantedAuthority("ROLE_PERSONAL"),
+                    new SimpleGrantedAuthority("ROLE_USUARIO")
             );
             case PERSONAL -> List.of(
-                new SimpleGrantedAuthority("ROLE_PERSONAL"),
-                new SimpleGrantedAuthority("ROLE_USUARIO")
+                    new SimpleGrantedAuthority("ROLE_PERSONAL"),
+                    new SimpleGrantedAuthority("ROLE_USUARIO")
             );
             case USUARIO -> List.of(new SimpleGrantedAuthority("ROLE_USUARIO"));
         };

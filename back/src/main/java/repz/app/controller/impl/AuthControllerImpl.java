@@ -5,7 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RestController;
 import repz.app.controller.AuthController;
 import repz.app.dto.auth.AuthenticationDTO;
 import repz.app.dto.auth.LoginResponseDTO;
@@ -49,11 +52,11 @@ public class AuthControllerImpl implements AuthController {
         if (email == null) {
             return ResponseEntity.status(401).build();
         }
-        var userDetails = userRepository.findByEmail(email);
-        if (userDetails == null) {
+        var userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
             return ResponseEntity.status(401).build();
         }
-        var user = (User) userDetails;
+        var user = userOptional.get();
         var newToken = tokenService.generateToken(user);
         var newRefreshToken = tokenService.generateRefreshToken(user);
         return ResponseEntity.ok(new LoginResponseDTO(newToken, newRefreshToken));
