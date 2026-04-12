@@ -32,4 +32,14 @@ public class PersonalService {
     public void deletePersonal(Long id) {
         personalRepository.deleteById(id);
     }
+    
+    public Personal updatePersonal(Personal personal) {
+        Personal existingPersonal = personalRepository.findById(personal.getId()).orElseThrow(() -> new RuntimeException("Personal not found"));
+        existingPersonal.setEspecialidades(personal.getEspecialidades());
+        existingPersonal.setAtivo(personal.getAtivo());
+        existingPersonal.setUser(personal.getUser());
+        existingPersonal.setAcademia(personal.getAcademia());
+
+        return personalRepository.save(existingPersonal);
+    }
 }
