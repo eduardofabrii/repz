@@ -98,8 +98,8 @@ public class AcademiaControllerImpl implements AcademiaController {
     }
 
     private void validateAcademiaRole(User user) {
-        if (!user.getRole().equals(UserRole.GYM)) {
-            throw new org.springframework.security.access.AccessDeniedException("Acesso negado: perfil GYM necessário");
+        if (!user.getRole().equals(UserRole.ACADEMIA)) {
+            throw new org.springframework.security.access.AccessDeniedException("Acesso negado: perfil ACADEMIA necessário");
         }
     }
 }
