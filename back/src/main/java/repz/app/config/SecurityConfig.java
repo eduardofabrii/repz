@@ -52,6 +52,8 @@ public class SecurityConfig {
 
                         .requestMatchers("/error").permitAll()
 
+                        .requestMatchers("/health").permitAll()
+
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
