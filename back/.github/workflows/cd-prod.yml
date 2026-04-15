@@ -1,0 +1,42 @@
+name: CD Pipeline - Produção (Repz)
+
+on:
+  push:
+    branches: [ "main" ] # Aciona no merge para a main
+
+jobs:
+  # 1. Teste de Carga
+  load-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run K6 Load Test (500 users)
+        uses: grafana/k6-action@v0.3.1
+        with:
+          filename: ./tests/load/performance-test.js
+          flags: --vus 500 --duration 30s # Testa 500 usuários simultâneos
+
+  # 2. Deploy para Staging (Ambiente de Pré-produção)
+  deploy-staging:
+    needs: load-test
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: Deploy to Staging
+        run: echo "Executando deploy automático em pré-produção..."
+
+  # 3. Deploy para Produção (Com Aprovação Manual)
+  deploy-production:
+    needs: deploy-staging
+    runs-on: ubuntu-latest
+    environment:
+      name: production # Define o ambiente que exige aprovação
+    steps:
+      - name: Deploy to Production
+        run: echo "Executando deploy em produção após aprovação..."
+
+      # Exemplo de Rollback simples
+      - name: Check Health
+        run: |
+          # Se o sistema não responder, executa comando de rollback
+          curl -f http://TODO/health || (echo "Falha! Iniciando Rollback..." && exit 1)
