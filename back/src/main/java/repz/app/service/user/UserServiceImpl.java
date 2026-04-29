@@ -4,13 +4,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+
 import repz.app.dto.auth.RegistrationDTO;
 import repz.app.dto.request.UserPutRequest;
 import repz.app.dto.response.UserGetResponse;
 import repz.app.persistence.entity.User;
+import repz.app.persistence.entity.UserRole;
 import repz.app.persistence.mapper.UserMapper;
 import repz.app.persistence.repository.UserRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -24,7 +29,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public List<UserGetResponse> findAllUsers() {
-        return userRepository.findAll()
+        return userRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(userMapper::toResponse)
                 .toList();
@@ -33,54 +38,86 @@ public class UserServiceImpl implements UserService {
     @Override
     @PreAuthorize("isAuthenticated()")
     public UserGetResponse findUserById(Integer id) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
+        User user = userRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado"));
+
         return userMapper.toResponse(user);
     }
 
     @Override
     public void updateLastLogin(String email) {
-        var userOptional = userRepository.findByEmail(email);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setLastLogin(java.time.LocalDateTime.now());
+        userRepository.findByEmail(email).ifPresent(user -> {
+            user.setLastLogin(LocalDateTime.now());
             userRepository.save(user);
-        }
+        });
     }
 
     @Override
-    public void registerUser(RegistrationDTO registrationDTO) {
-        if (userRepository.findByEmail(registrationDTO.email()).isPresent()) {
-            throw new RuntimeException("Email já registrado");
+    public void registerUser(RegistrationDTO dto) {
+
+        if (userRepository.findByEmail(dto.email()).isPresent()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Email já cadastrado");
         }
 
         User user = new User();
-        user.setName(registrationDTO.name());
-        user.setEmail(registrationDTO.email());
-        user.setPassword(passwordEncoder.encode(registrationDTO.password()));
+
+        user.setName(dto.name());
+        user.setEmail(dto.email());
+        user.setPassword(passwordEncoder.encode(dto.password()));
+
+        user.setRole(UserRole.USUARIO);
+        user.setActive(true);
 
         userRepository.save(user);
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public void updateUser(Integer id, UserPutRequest userPutRequest) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
+    public void updateUser(Integer id, UserPutRequest dto) {
 
-        user.setName(userPutRequest.name());
+        User user = userRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado"));
+
+        user.setName(dto.name());
+
         userRepository.save(user);
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteUser(Integer id) {
-        userRepository.deleteById(id);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado"));
+
+        user.setDeletedAt(LocalDateTime.now());
+
+        userRepository.save(user);
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public void restoreUser(Integer id) {
-        throw new UnsupportedOperationException("Não implementado ainda");
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "Usuário não encontrado"));
+
+        user.setDeletedAt(null);
+
+        userRepository.save(user);
     }
 }

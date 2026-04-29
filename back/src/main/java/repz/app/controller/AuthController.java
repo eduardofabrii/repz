@@ -22,5 +22,7 @@ public interface AuthController {
 
     @PostMapping("/refresh")
     ResponseEntity<LoginResponseDTO> refresh(@RequestBody String refreshToken);
+
+    
 }
 
