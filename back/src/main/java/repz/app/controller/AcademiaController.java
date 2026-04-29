@@ -16,10 +16,13 @@ import repz.app.dto.response.AcademiaResponse;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+
 @RequestMapping("/academias")
 public interface AcademiaController {
 
     @PostMapping
+    @SecurityRequirement(name = "bearer-jwt")
     ResponseEntity<AcademiaResponse> criar(@RequestBody @Valid AcademiaCreateRequest dto);
 
     @GetMapping

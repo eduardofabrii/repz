@@ -22,7 +22,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
                     .withIssuer("repz_api")
-                    .withSubject(user.getName())
+                    .withSubject(user.getEmail())
                     .withClaim("role", user.getRole().name())
                     .withClaim("id", user.getId().toString())
                     .withExpiresAt(LocalDateTime.now().plusMinutes(60).toInstant(ZoneOffset.of("-03:00")))

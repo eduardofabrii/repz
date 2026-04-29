@@ -1,6 +1,8 @@
 package repz.app.service.personal;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import repz.app.dto.request.PersonalCreateRequest;
@@ -29,24 +31,24 @@ public class PersonalService {
 
     public PersonalResponse criarPersonal(PersonalCreateRequest request, Authentication auth) {
         User currentUser = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário autenticado não encontrado"));
 
         if (currentUser.getRole() == UserRole.ACADEMIA) {
             Academia academia = academiaRepository.findById(request.getAcademiaId())
-                    .orElseThrow(() -> new RuntimeException("Academia não encontrada"));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Academia não encontrada"));
 
             if (!academia.getResponsibleUser().getId().equals(currentUser.getId())) {
-                throw new RuntimeException("ACADEMIA pode registrar personais apenas em sua própria unidade");
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "ACADEMIA pode registrar personais apenas em sua própria unidade");
             }
         } else if (currentUser.getRole() != UserRole.ADMIN) {
-            throw new RuntimeException("Acesso negado para criar personal");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Acesso negado para criar personal");
         }
 
         User user = userRepository.findById(Math.toIntExact(request.getUserId()))
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário informado não encontrado"));
 
         Academia academia = academiaRepository.findById(request.getAcademiaId())
-                .orElseThrow(() -> new RuntimeException("Academia não encontrada"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Academia informada não encontrada"));
 
         Personal personal = new Personal();
         personal.setUser(user);
