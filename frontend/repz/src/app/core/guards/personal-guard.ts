@@ -1,13 +1,15 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { AuthService } from '../services/auth';
 
-export const personalGuard: CanActivateFn = (route, state) => {
+export const personalGuard: CanActivateFn = () => {
   const router = inject(Router);
+  const authService = inject(AuthService);
 
-  const userRole = localStorage.getItem('USER_ROLE'); 
+  const userRole = authService.getUserRole();
 
   if (userRole === 'PERSONAL') {
-    return true; 
+    return true;
   }
 
   router.navigate(['/auth']);
