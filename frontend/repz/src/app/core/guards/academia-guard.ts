@@ -1,14 +1,16 @@
 import { CanActivateFn, Router} from '@angular/router';
 import { inject } from '@angular/core';
+import { AuthService } from '../services/auth';
 
 
-export const academiaGuard: CanActivateFn = (route, state) => {
+export const academiaGuard: CanActivateFn = () => {
   const router = inject(Router);
+  const authService = inject(AuthService);
 
-  const userRole = localStorage.getItem('USER_ROLE'); 
+  const userRole = authService.getUserRole();
 
   if (userRole === 'ACADEMIA') {
-    return true; 
+    return true;
   }
 
   router.navigate(['/auth']);
