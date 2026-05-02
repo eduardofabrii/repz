@@ -10,19 +10,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AvaliacaoFisicaCreateRequest {
-    @NotNull(message = "Aluno ID é obrigatório")
+    @NotNull(message = "Aluno ID é obrigatório.")
     private Long alunoId;
 
-    @NotNull(message = "Peso é obrigatório")
-    @Positive(message = "Peso deve ser positivo")
+    @NotNull(message = "Peso é obrigatório.")
+    @Positive(message = "Peso deve ser positivo.")
     private Double pesoKg;
 
-    @NotNull(message = "Altura é obrigatória")
-    @Positive(message = "Altura deve ser positiva")
+    @NotNull(message = "Altura é obrigatória.")
+    @Positive(message = "Altura deve ser positiva.")
     private Double alturaCm;
 
     private Double percentualGordura;
 
     private String medidas;
 }
-

@@ -2,6 +2,7 @@ package repz.app.controller.impl;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,10 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 import repz.app.controller.AuthController;
 import repz.app.dto.auth.AuthenticationDTO;
 import repz.app.dto.auth.LoginResponseDTO;
+import repz.app.message.Mensagens;
 import repz.app.persistence.entity.User;
 import repz.app.persistence.repository.UserRepository;
 import repz.app.service.security.TokenService;
 import repz.app.service.user.UserService;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Objects;
 
@@ -27,6 +30,7 @@ public class AuthControllerImpl implements AuthController {
     private final UserService userService;
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final Mensagens mensagens;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO dto) {
@@ -50,11 +54,11 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<LoginResponseDTO> refresh(@RequestBody String refreshToken) {
         var email = tokenService.validateRefreshToken(refreshToken.trim());
         if (email == null) {
-            return ResponseEntity.status(401).build();
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, mensagens.get("erro.autenticacao"));
         }
         var userOptional = userRepository.findByEmail(email);
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(401).build();
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, mensagens.get("erro.autenticacao"));
         }
         var user = userOptional.get();
         var newToken = tokenService.generateToken(user);

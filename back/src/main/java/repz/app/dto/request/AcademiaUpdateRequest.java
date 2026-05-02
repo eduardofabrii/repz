@@ -12,22 +12,21 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AcademiaUpdateRequest {
 
-    @NotBlank(message = "CNPJ é obrigatório")
-    @Pattern(regexp = "^\\d{14}$", message = "CNPJ deve conter 14 dígitos")
+    @NotBlank(message = "CNPJ é obrigatório.")
+    @Pattern(regexp = "^\\d{14}$", message = "CNPJ deve conter 14 dígitos.")
     private String cnpj;
 
-    @NotBlank(message = "Nome é obrigatório")
+    @NotBlank(message = "Nome é obrigatório.")
     private String name;
 
-    @NotBlank(message = "Endereço é obrigatório")
+    @NotBlank(message = "Endereço é obrigatório.")
     private String address;
 
-    @NotBlank(message = "Responsável é obrigatório")
+    @NotBlank(message = "Responsável é obrigatório.")
     private String responsible;
 
-    @Email(message = "Email deve ser válido")
+    @Email(message = "Email deve ser válido.")
     private String email;
 
     private String phone;
 }
-

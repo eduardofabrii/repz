@@ -2,6 +2,7 @@ package repz.app.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +26,7 @@ public interface UserController {
     ResponseEntity<UserGetResponse> findById(@PathVariable Integer id);
 
     @PostMapping
-    ResponseEntity<Void> criar(@RequestBody @Valid RegistrationDTO registrationDTO);
+    ResponseEntity<Void> criar(@RequestBody @Valid RegistrationDTO registrationDTO, Authentication authentication);
 
     @PutMapping("/{id}")
     ResponseEntity<Void> atualizar(

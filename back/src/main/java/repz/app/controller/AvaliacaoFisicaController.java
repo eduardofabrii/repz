@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,8 +28,9 @@ import java.util.List;
 public interface AvaliacaoFisicaController {
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Registrar avaliação", description = "Registrar avaliação física (peso, altura, % gordura, medidas) com IMC calculado automaticamente")
-    @ApiResponse(responseCode = "200", description = "Avaliação registrada com sucesso")
+    @ApiResponse(responseCode = "201", description = "Avaliação registrada com sucesso")
     AvaliacaoFisicaResponse criar(@Valid @RequestBody AvaliacaoFisicaCreateRequest request, Authentication auth);
 
     @GetMapping

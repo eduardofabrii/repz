@@ -1,5 +1,6 @@
 package repz.app.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,7 +21,7 @@ import java.util.List;
 public interface PlanoController {
 
     @PostMapping
-    ResponseEntity<Void> criar(@RequestBody PlanoPostRequest dto);
+    ResponseEntity<Void> criar(@RequestBody @Valid PlanoPostRequest dto);
 
     @GetMapping
     ResponseEntity<List<PlanoResponse>> findAll();
@@ -31,7 +32,7 @@ public interface PlanoController {
     @PutMapping("/{id}")
     ResponseEntity<Void> atualizar(
             @PathVariable Integer id,
-            @RequestBody PlanoPutRequest dto);
+            @RequestBody @Valid PlanoPutRequest dto);
 
     @PatchMapping("/{id}/ativar")
     ResponseEntity<Void> ativar(@PathVariable Integer id);

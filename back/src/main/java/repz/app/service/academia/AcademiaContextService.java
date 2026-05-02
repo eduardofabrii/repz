@@ -9,6 +9,7 @@ import repz.app.persistence.entity.UserRole;
 import repz.app.persistence.repository.AcademiaRepository;
 import repz.app.persistence.repository.PersonalRepository;
 import repz.app.persistence.repository.UserRepository;
+import repz.app.message.Mensagens;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class AcademiaContextService {
     private final UserRepository userRepository;
     private final AcademiaRepository academiaRepository;
     private final PersonalRepository personalRepository;
+    private final Mensagens mensagens;
 
     public Long resolveOptional(Authentication auth, Long requestedAcademiaId) {
         User currentUser = getCurrentUser(auth);
@@ -45,47 +47,47 @@ public class AcademiaContextService {
     public Long resolveRequired(Authentication auth, Long requestedAcademiaId) {
         Long academiaId = resolveOptional(auth, requestedAcademiaId);
         if (academiaId == null) {
-            throw new IllegalArgumentException("Header " + HEADER_NAME + " é obrigatório para selecionar a academia");
+            throw new IllegalArgumentException(mensagens.get("academia.header.obrigatorio", HEADER_NAME));
         }
         return academiaId;
     }
 
     private User getCurrentUser(Authentication auth) {
         if (auth == null || auth.getName() == null) {
-            throw new AccessDeniedException("Usuário não autenticado");
+            throw new AccessDeniedException(mensagens.get("auth.usuario.nao.autenticado"));
         }
 
         return userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new AccessDeniedException("Usuário não encontrado"));
+                .orElseThrow(() -> new AccessDeniedException(mensagens.get("usuario.nao.encontrado")));
     }
 
     private Long getUserAcademiaId(User user) {
         if (user.getRole() == UserRole.ACADEMIA) {
             return academiaRepository.findByResponsibleUserId(user.getId()).stream()
                     .findFirst()
-                    .orElseThrow(() -> new AccessDeniedException("Usuário não possui academia vinculada"))
+                    .orElseThrow(() -> new AccessDeniedException(mensagens.get("auth.usuario.sem.academia")))
                     .getId();
         }
 
         if (user.getRole() == UserRole.PERSONAL) {
             return personalRepository.findByUserId(user.getId())
-                    .orElseThrow(() -> new AccessDeniedException("Personal não possui academia vinculada"))
+                    .orElseThrow(() -> new AccessDeniedException(mensagens.get("auth.personal.sem.academia")))
                     .getAcademia()
                     .getId();
         }
 
-        throw new AccessDeniedException("Perfil não possui contexto de academia vinculado");
+        throw new AccessDeniedException(mensagens.get("auth.perfil.sem.contexto.academia"));
     }
 
     private void validateRequestedAcademia(Long requestedAcademiaId, Long userAcademiaId) {
         if (requestedAcademiaId != null && !requestedAcademiaId.equals(userAcademiaId)) {
-            throw new AccessDeniedException("Acesso negado para a academia informada");
+            throw new AccessDeniedException(mensagens.get("auth.academia.acesso.negado"));
         }
     }
 
     private void assertAcademiaExists(Long academiaId) {
         if (!academiaRepository.existsById(academiaId)) {
-            throw new IllegalArgumentException("Academia não encontrada");
+            throw new IllegalArgumentException(mensagens.get("academia.nao.encontrada"));
         }
     }
 }

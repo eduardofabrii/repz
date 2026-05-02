@@ -10,13 +10,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonalCreateRequest {
-    @NotNull(message = "User ID é obrigatório")
+    @NotNull(message = "User ID é obrigatório.")
     private Long userId;
 
-    @NotNull(message = "Academia ID é obrigatório")
+    @NotNull(message = "Academia ID é obrigatório.")
     private Long academiaId;
 
-    @NotBlank(message = "Especialidade é obrigatória")
+    @NotBlank(message = "Especialidade é obrigatória.")
     private String especialidade;
 }
-

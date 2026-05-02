@@ -1,4 +1,14 @@
 package repz.app.dto.auth;
 
-public record AuthenticationDTO(String email, String password) {
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthenticationDTO(
+        @NotBlank(message = "Informe o e-mail.")
+        @Email(message = "E-mail inválido.")
+        String email,
+
+        @NotBlank(message = "Informe a senha.")
+        String password
+) {
 }

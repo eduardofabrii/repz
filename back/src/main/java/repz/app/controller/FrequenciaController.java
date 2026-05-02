@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import repz.app.dto.request.FrequenciaCreateRequest;
 import repz.app.dto.response.AlunoInativoResponse;
 import repz.app.dto.response.FrequenciaRelatorioResponse;
@@ -28,13 +31,14 @@ import java.util.List;
 public interface FrequenciaController {
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Registrar frequência", description = "Registrar check-in/frequência do aluno")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Frequência registrada com sucesso"),
+            @ApiResponse(responseCode = "201", description = "Frequência registrada com sucesso"),
             @ApiResponse(responseCode = "403", description = "Acesso negado")
     })
     FrequenciaResponse criar(
-            @RequestBody FrequenciaCreateRequest request,
+            @Valid @RequestBody FrequenciaCreateRequest request,
             @RequestHeader(value = "X-Academia-Id", required = false) Long academiaId,
             Authentication auth);
 
