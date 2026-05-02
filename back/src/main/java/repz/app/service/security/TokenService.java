@@ -4,15 +4,20 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import repz.app.message.Mensagens;
 import repz.app.persistence.entity.User;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Service
+@RequiredArgsConstructor
 public class TokenService {
+
+    private final Mensagens mensagens;
 
     @Value("${api.security.token.secret}")
     private String secret;
@@ -22,13 +27,13 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             return JWT.create()
                     .withIssuer("repz_api")
-                    .withSubject(user.getName())
+                    .withSubject(user.getEmail())
                     .withClaim("role", user.getRole().name())
                     .withClaim("id", user.getId().toString())
                     .withExpiresAt(LocalDateTime.now().plusMinutes(60).toInstant(ZoneOffset.of("-03:00")))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Error while authenticating", exception);
+            throw new RuntimeException(mensagens.get("auth.erro.gerar.token"), exception);
         }
     }
 
@@ -41,7 +46,7 @@ public class TokenService {
                     .withExpiresAt(LocalDateTime.now().plusDays(7).toInstant(ZoneOffset.of("-03:00")))
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Error generating refresh token", exception);
+            throw new RuntimeException(mensagens.get("auth.erro.gerar.refresh"), exception);
         }
     }
 

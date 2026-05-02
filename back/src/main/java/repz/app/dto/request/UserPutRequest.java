@@ -5,11 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import repz.app.persistence.entity.UserRole;
 
 public record UserPutRequest(
-        @NotBlank(message = "Nome é obrigatório")
+        @NotBlank(message = "Insira o nome.")
         String name,
 
-        @NotBlank(message = "Email é obrigatório")
-        @Email(message = "Email inválido")
+        @NotBlank(message = "Insira o e-mail.")
+        @Email(message = "E-mail inválido.")
         String email,
 
         UserRole role,

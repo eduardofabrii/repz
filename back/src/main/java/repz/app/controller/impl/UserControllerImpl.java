@@ -3,6 +3,7 @@ package repz.app.controller.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RestController;
 import repz.app.controller.UserController;
 import repz.app.dto.auth.RegistrationDTO;
@@ -29,8 +30,8 @@ public class UserControllerImpl implements UserController {
     }
 
     @Override
-    public ResponseEntity<Void> criar(RegistrationDTO registrationDTO) {
-        userService.criar(registrationDTO);
+    public ResponseEntity<Void> criar(RegistrationDTO registrationDTO, Authentication authentication) {
+        userService.criar(registrationDTO, authentication);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

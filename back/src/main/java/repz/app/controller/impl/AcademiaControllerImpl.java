@@ -15,6 +15,7 @@ import repz.app.dto.request.AcademiaCreateRequest;
 import repz.app.dto.request.AcademiaUpdateRequest;
 import repz.app.dto.response.AcademiaDashboardResponse;
 import repz.app.dto.response.AcademiaResponse;
+import repz.app.message.Mensagens;
 import repz.app.persistence.entity.User;
 import repz.app.persistence.entity.UserRole;
 import repz.app.service.academia.AcademiaService;
@@ -27,6 +28,7 @@ import java.util.List;
 public class AcademiaControllerImpl implements AcademiaController {
 
     private final AcademiaService academiaService;
+    private final Mensagens mensagens;
 
     @Override
     @Operation(summary = "Criar academia", description = "Cadastrar nova academia (apenas ADMIN)")
@@ -120,7 +122,7 @@ public class AcademiaControllerImpl implements AcademiaController {
     private User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new IllegalArgumentException("Usuário não autenticado");
+            throw new IllegalArgumentException(mensagens.get("auth.usuario.nao.autenticado"));
         }
         return (User) authentication.getPrincipal();
     }
@@ -128,13 +130,13 @@ public class AcademiaControllerImpl implements AcademiaController {
     private void validateAdminRole() {
         User currentUser = getCurrentUser();
         if (!currentUser.getRole().equals(UserRole.ADMIN)) {
-            throw new org.springframework.security.access.AccessDeniedException("Acesso negado: permissão ADMIN necessária");
+            throw new org.springframework.security.access.AccessDeniedException(mensagens.get("auth.admin.necessario"));
         }
     }
 
     private void validateAcademiaRole(User user) {
         if (!user.getRole().equals(UserRole.ACADEMIA)) {
-            throw new org.springframework.security.access.AccessDeniedException("Acesso negado: perfil ACADEMIA necessário");
+            throw new org.springframework.security.access.AccessDeniedException(mensagens.get("auth.academia.necessario"));
         }
     }
 }

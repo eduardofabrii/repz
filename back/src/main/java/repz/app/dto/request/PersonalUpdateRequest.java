@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PersonalUpdateRequest {
-    @NotBlank(message = "Especialidade é obrigatória")
+    @NotBlank(message = "Especialidade é obrigatória.")
     private String especialidade;
     private Boolean ativo;
 }
-

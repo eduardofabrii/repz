@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,15 +21,16 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import repz.app.exception.ErrorResponse;
+import repz.app.message.Mensagens;
 import tools.jackson.databind.ObjectMapper;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
     private final SecurityFilter securityFilter;
+    private final Mensagens mensagens;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) {
@@ -55,6 +55,31 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/health", "/health", "/actuator/health").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/users/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/users/*/ativar", "/api/users/*/desativar").hasRole("ADMIN")
+
+                        .requestMatchers(HttpMethod.GET, "/api/personais/me", "/api/personais/me/alunos").hasRole("PERSONAL")
+                        .requestMatchers(HttpMethod.PUT, "/api/personais/me").hasRole("PERSONAL")
+                        .requestMatchers("/api/personais/**").hasAnyRole("ADMIN", "ACADEMIA")
+
+                        .requestMatchers(HttpMethod.POST, "/api/checkins").hasAnyRole("USUARIO", "PERSONAL")
+                        .requestMatchers(HttpMethod.GET, "/api/checkins/me").hasRole("USUARIO")
+                        .requestMatchers(HttpMethod.GET, "/api/checkins/alunos/inativos").hasAnyRole("PERSONAL", "ACADEMIA", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/checkins/relatorio").hasAnyRole("ACADEMIA", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/checkins/*").hasAnyRole("USUARIO", "PERSONAL", "ACADEMIA", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/checkins").hasAnyRole("PERSONAL", "ACADEMIA", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/checkins/*/ativar", "/api/checkins/*/desativar")
+                                .hasAnyRole("PERSONAL", "ACADEMIA", "ADMIN")
+
+                        .requestMatchers(HttpMethod.POST, "/api/avaliacoes").hasRole("PERSONAL")
+                        .requestMatchers(HttpMethod.GET, "/api/avaliacoes/unidade").hasAnyRole("ACADEMIA", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/avaliacoes/**")
+                                .hasAnyRole("PERSONAL", "USUARIO", "ACADEMIA", "ADMIN")
+                        .requestMatchers(HttpMethod.PATCH, "/api/avaliacoes/*/ativar", "/api/avaliacoes/*/desativar")
+                                .hasAnyRole("PERSONAL", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
@@ -69,7 +94,10 @@ public class SecurityConfig {
         return (request, response, accessDeniedException) -> {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.setContentType("application/json");
-            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.FORBIDDEN.value(), "Access Denied", accessDeniedException.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                    HttpStatus.FORBIDDEN.value(),
+                    mensagens.get("erro.acesso.negado"),
+                    accessDeniedException.getMessage());
             response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
         };
     }
@@ -78,7 +106,10 @@ public class SecurityConfig {
         return (request, response, authException) -> {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            ErrorResponse errorResponse = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), "Unauthorized", authException.getMessage());
+            ErrorResponse errorResponse = new ErrorResponse(
+                    HttpStatus.UNAUTHORIZED.value(),
+                    mensagens.get("erro.autenticacao"),
+                    authException.getMessage());
             response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
         };
     }

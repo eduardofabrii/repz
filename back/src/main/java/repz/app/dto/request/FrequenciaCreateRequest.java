@@ -11,14 +11,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FrequenciaCreateRequest {
-    @NotNull(message = "Aluno ID é obrigatório")
+    @NotNull(message = "Aluno ID é obrigatório.")
     private Long alunoId;
 
-    @NotNull(message = "Academia ID é obrigatório")
+    @NotNull(message = "Academia ID é obrigatório.")
     private Long academiaId;
 
     private Long personalId;
 
     private LocalDateTime dataHora;
 }
-
