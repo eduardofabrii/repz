@@ -21,32 +21,38 @@ public class PersonalControllerImpl implements PersonalController {
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'ACADEMIA')")
-    public PersonalResponse criarPersonal(PersonalCreateRequest request, Authentication auth) {
-        return personalService.criarPersonal(request, auth);
+    public PersonalResponse criar(PersonalCreateRequest request, Long academiaId, Authentication auth) {
+        return personalService.criar(request, academiaId, auth);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'ACADEMIA')")
-    public List<PersonalResponse> listarPersonais(Authentication auth) {
-        return personalService.listarPersonais(auth);
+    public List<PersonalResponse> findAll(Long academiaId, Authentication auth) {
+        return personalService.findAll(academiaId, auth);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'ACADEMIA')")
-    public PersonalResponse obterPorId(Long id) {
-        return personalService.obterPorId(id);
+    public PersonalResponse findById(Long id) {
+        return personalService.findById(id);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'ACADEMIA')")
-    public PersonalResponse atualizarPersonal(Long id, PersonalUpdateRequest request, Authentication auth) {
-        return personalService.atualizarPersonal(id, request, auth);
+    public PersonalResponse atualizar(Long id, PersonalUpdateRequest request, Long academiaId, Authentication auth) {
+        return personalService.atualizar(id, request, academiaId, auth);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ADMIN', 'ACADEMIA')")
-    public PersonalResponse inativarPersonal(Long id, Authentication auth) {
-        return personalService.inativarPersonal(id, auth);
+    public PersonalResponse ativar(Long id, Long academiaId, Authentication auth) {
+        return personalService.ativar(id, academiaId, auth);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('ADMIN', 'ACADEMIA')")
+    public PersonalResponse desativar(Long id, Long academiaId, Authentication auth) {
+        return personalService.desativar(id, academiaId, auth);
     }
 
     @Override
@@ -67,11 +73,4 @@ public class PersonalControllerImpl implements PersonalController {
         return personalService.obterMeusAlunos(auth);
     }
 
-    @Override
-    @PreAuthorize("hasRole('ADMIN')")
-    public void deletar(Long id) {
-        personalService.deletarPersonal(id);
-    }
 }
-
-

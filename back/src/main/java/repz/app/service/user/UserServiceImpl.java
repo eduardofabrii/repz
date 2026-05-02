@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public List<UserGetResponse> findAllUsers() {
+    public List<UserGetResponse> findAll() {
         return userRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(userMapper::toResponse)
@@ -37,7 +37,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("isAuthenticated()")
-    public UserGetResponse findUserById(Integer id) {
+    public UserGetResponse findById(Integer id) {
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() ->
                         new ResponseStatusException(
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void registerUser(RegistrationDTO dto) {
+    public void criar(RegistrationDTO dto) {
 
         if (userRepository.findByEmail(dto.email()).isPresent()) {
             throw new ResponseStatusException(
@@ -78,7 +78,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public void updateUser(Integer id, UserPutRequest dto) {
+    public void atualizar(Integer id, UserPutRequest dto) {
 
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() ->
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public void deleteUser(Integer id) {
+    public void desativar(Integer id) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
@@ -101,6 +101,7 @@ public class UserServiceImpl implements UserService {
                                 HttpStatus.NOT_FOUND,
                                 "Usuário não encontrado"));
 
+        user.setActive(false);
         user.setDeletedAt(LocalDateTime.now());
 
         userRepository.save(user);
@@ -108,7 +109,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public void restoreUser(Integer id) {
+    public void ativar(Integer id) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
@@ -116,6 +117,7 @@ public class UserServiceImpl implements UserService {
                                 HttpStatus.NOT_FOUND,
                                 "Usuário não encontrado"));
 
+        user.setActive(true);
         user.setDeletedAt(null);
 
         userRepository.save(user);

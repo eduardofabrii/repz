@@ -15,6 +15,7 @@ import repz.app.persistence.entity.UserRole;
 import repz.app.persistence.repository.AcademiaRepository;
 import repz.app.persistence.repository.PersonalRepository;
 import repz.app.persistence.repository.UserRepository;
+import repz.app.service.academia.AcademiaContextService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,13 +27,15 @@ public class PersonalService {
     private final PersonalRepository personalRepository;
     private final UserRepository userRepository;
     private final AcademiaRepository academiaRepository;
+    private final AcademiaContextService academiaContextService;
 
-    public PersonalResponse criarPersonal(PersonalCreateRequest request, Authentication auth) {
+    public PersonalResponse criar(PersonalCreateRequest request, Long academiaHeaderId, Authentication auth) {
         User currentUser = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Long academiaId = resolveAcademiaFromRequest(request.getAcademiaId(), academiaHeaderId, auth);
 
         if (currentUser.getRole() == UserRole.ACADEMIA) {
-            Academia academia = academiaRepository.findById(request.getAcademiaId())
+            Academia academia = academiaRepository.findById(academiaId)
                     .orElseThrow(() -> new RuntimeException("Academia não encontrada"));
 
             if (!academia.getResponsibleUser().getId().equals(currentUser.getId())) {
@@ -45,7 +48,7 @@ public class PersonalService {
         User user = userRepository.findById(Math.toIntExact(request.getUserId()))
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        Academia academia = academiaRepository.findById(request.getAcademiaId())
+        Academia academia = academiaRepository.findById(academiaId)
                 .orElseThrow(() -> new RuntimeException("Academia não encontrada"));
 
         Personal personal = new Personal();
@@ -58,12 +61,14 @@ public class PersonalService {
         return toDTO(saved);
     }
 
-    public List<PersonalResponse> listarPersonais(Authentication auth) {
+    public List<PersonalResponse> findAll(Long academiaHeaderId, Authentication auth) {
         User currentUser = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Long academiaId = academiaContextService.resolveOptional(auth, academiaHeaderId);
 
         if (currentUser.getRole() == UserRole.ADMIN) {
             return personalRepository.findAll().stream()
+                    .filter(p -> academiaId == null || p.getAcademia().getId().equals(academiaId))
                     .map(this::toDTO)
                     .collect(Collectors.toList());
         } else if (currentUser.getRole() == UserRole.ACADEMIA) {
@@ -81,18 +86,20 @@ public class PersonalService {
         throw new RuntimeException("Acesso negado para listar personais");
     }
 
-    public PersonalResponse obterPorId(Long id) {
+    public PersonalResponse findById(Long id) {
         Personal personal = personalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personal não encontrado"));
         return toDTO(personal);
     }
 
-    public PersonalResponse atualizarPersonal(Long id, PersonalUpdateRequest request, Authentication auth) {
+    public PersonalResponse atualizar(Long id, PersonalUpdateRequest request, Long academiaHeaderId, Authentication auth) {
         User currentUser = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Long academiaId = academiaContextService.resolveOptional(auth, academiaHeaderId);
 
         Personal personal = personalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personal não encontrado"));
+        validatePersonalAcademia(personal, academiaId);
 
         if (currentUser.getRole() == UserRole.ACADEMIA) {
             Academia academia = academiaRepository.findByResponsibleUserId(currentUser.getId())
@@ -116,12 +123,22 @@ public class PersonalService {
         return toDTO(updated);
     }
 
-    public PersonalResponse inativarPersonal(Long id, Authentication auth) {
+    public PersonalResponse ativar(Long id, Long academiaHeaderId, Authentication auth) {
+        return alterarStatusPersonal(id, academiaHeaderId, auth, true);
+    }
+
+    public PersonalResponse desativar(Long id, Long academiaHeaderId, Authentication auth) {
+        return alterarStatusPersonal(id, academiaHeaderId, auth, false);
+    }
+
+    private PersonalResponse alterarStatusPersonal(Long id, Long academiaHeaderId, Authentication auth, boolean ativo) {
         User currentUser = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Long academiaId = academiaContextService.resolveOptional(auth, academiaHeaderId);
 
         Personal personal = personalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Personal não encontrado"));
+        validatePersonalAcademia(personal, academiaId);
 
         if (currentUser.getRole() == UserRole.ACADEMIA) {
             Academia academia = academiaRepository.findByResponsibleUserId(currentUser.getId())
@@ -130,13 +147,13 @@ public class PersonalService {
                     .orElseThrow(() -> new RuntimeException("Academia não encontrada"));
 
             if (!personal.getAcademia().getId().equals(academia.getId())) {
-                throw new RuntimeException("ACADEMIA pode inativar apenas personais de sua unidade");
+                throw new RuntimeException("ACADEMIA pode alterar apenas personais de sua unidade");
             }
         } else if (currentUser.getRole() != UserRole.ADMIN) {
-            throw new RuntimeException("Acesso negado para inativar personal");
+            throw new RuntimeException("Acesso negado para alterar status do personal");
         }
 
-        personal.setAtivo(false);
+        personal.setAtivo(ativo);
         Personal updated = personalRepository.save(personal);
         return toDTO(updated);
     }
@@ -191,8 +208,21 @@ public class PersonalService {
         );
     }
 
-    public void deletarPersonal(Long id) {
-        personalRepository.deleteById(id);
+    private Long resolveAcademiaFromRequest(Long requestAcademiaId, Long headerAcademiaId, Authentication auth) {
+        Long requestedAcademiaId = headerAcademiaId != null ? headerAcademiaId : requestAcademiaId;
+        Long resolvedAcademiaId = academiaContextService.resolveRequired(auth, requestedAcademiaId);
+
+        if (requestAcademiaId != null && !requestAcademiaId.equals(resolvedAcademiaId)) {
+            throw new RuntimeException("Academia do corpo da requisição difere do contexto informado");
+        }
+
+        return resolvedAcademiaId;
+    }
+
+    private void validatePersonalAcademia(Personal personal, Long academiaId) {
+        if (academiaId != null && !personal.getAcademia().getId().equals(academiaId)) {
+            throw new RuntimeException("Personal não pertence à academia informada");
+        }
     }
 
     private PersonalResponse toDTO(Personal personal) {
@@ -208,5 +238,3 @@ public class PersonalService {
         );
     }
 }
-
-

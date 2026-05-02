@@ -7,15 +7,14 @@ import repz.app.dto.request.AvaliacaoFisicaCreateRequest;
 import repz.app.dto.response.AvaliacaoFisicaGraficoResponse;
 import repz.app.dto.response.AvaliacaoFisicaResponse;
 import repz.app.dto.response.AvaliacaoFisicaUnidadeResponse;
-import repz.app.persistence.entity.Academia;
 import repz.app.persistence.entity.AvaliacaoFisica;
 import repz.app.persistence.entity.Personal;
 import repz.app.persistence.entity.User;
 import repz.app.persistence.entity.UserRole;
-import repz.app.persistence.repository.AcademiaRepository;
 import repz.app.persistence.repository.AvaliacaoFisicaRepository;
 import repz.app.persistence.repository.PersonalRepository;
 import repz.app.persistence.repository.UserRepository;
+import repz.app.service.academia.AcademiaContextService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,9 +27,9 @@ public class AvaliacaoFisicaService {
     private final AvaliacaoFisicaRepository avaliacaoFisicaRepository;
     private final UserRepository userRepository;
     private final PersonalRepository personalRepository;
-    private final AcademiaRepository academiaRepository;
+    private final AcademiaContextService academiaContextService;
 
-    public AvaliacaoFisicaResponse registrarAvaliacao(AvaliacaoFisicaCreateRequest request, Authentication auth) {
+    public AvaliacaoFisicaResponse criar(AvaliacaoFisicaCreateRequest request, Authentication auth) {
         User currentUser = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -63,7 +62,7 @@ public class AvaliacaoFisicaService {
         return toDTO(saved);
     }
 
-    public List<AvaliacaoFisicaResponse> obterHistorico(Long alunoId, Authentication auth) {
+    public List<AvaliacaoFisicaResponse> findAll(Long alunoId, Authentication auth) {
         User currentUser = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -72,7 +71,7 @@ public class AvaliacaoFisicaService {
         }
 
         if (currentUser.getRole() == UserRole.PERSONAL) {
-            Personal personal = personalRepository.findAll().stream()
+            personalRepository.findAll().stream()
                     .filter(p -> p.getUser().getId().equals(currentUser.getId()))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Personal não encontrado"));
@@ -80,6 +79,13 @@ public class AvaliacaoFisicaService {
 
         List<AvaliacaoFisica> avaliacoes = avaliacaoFisicaRepository.findByAluno_IdOrderByDataAvaliacaoDesc(alunoId);
         return avaliacoes.stream().map(this::toDTO).collect(Collectors.toList());
+    }
+
+    public AvaliacaoFisicaResponse findById(Long id) {
+        AvaliacaoFisica avaliacao = avaliacaoFisicaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+
+        return toDTO(avaliacao);
     }
 
     public AvaliacaoFisicaGraficoResponse obterGrafico(Long alunoId, Authentication auth) {
@@ -112,21 +118,19 @@ public class AvaliacaoFisicaService {
         return response;
     }
 
-    public List<AvaliacaoFisicaUnidadeResponse> obterDaUnidade(Authentication auth) {
+    public List<AvaliacaoFisicaUnidadeResponse> obterDaUnidade(Long academiaHeaderId, Authentication auth) {
         User currentUser = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Long academiaId = academiaContextService.resolveOptional(auth, academiaHeaderId);
 
         if (currentUser.getRole() == UserRole.ADMIN) {
             return avaliacaoFisicaRepository.findAll().stream()
+                    .filter(avaliacao -> academiaId == null
+                            || avaliacao.getAcademia() != null && avaliacao.getAcademia().getId().equals(academiaId))
                     .map(this::toDTOUnidade)
                     .collect(Collectors.toList());
         } else if (currentUser.getRole() == UserRole.ACADEMIA) {
-            Academia academia = academiaRepository.findByResponsibleUserId(currentUser.getId())
-                    .stream()
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("Academia não encontrada"));
-
-            return avaliacaoFisicaRepository.findByAcademia_Id(academia.getId()).stream()
+            return avaliacaoFisicaRepository.findByAcademia_Id(academiaId).stream()
                     .map(this::toDTOUnidade)
                     .collect(Collectors.toList());
         }
@@ -134,11 +138,20 @@ public class AvaliacaoFisicaService {
         throw new RuntimeException("Acesso negado");
     }
 
-    public void deletarAvaliacao(Long id) {
-        if (!avaliacaoFisicaRepository.existsById(id)) {
-            throw new RuntimeException("Avaliação não encontrada");
-        }
-        avaliacaoFisicaRepository.deleteById(id);
+    public void ativar(Long id) {
+        alterarStatus(id, true);
+    }
+
+    public void desativar(Long id) {
+        alterarStatus(id, false);
+    }
+
+    private void alterarStatus(Long id, boolean ativo) {
+        AvaliacaoFisica avaliacao = avaliacaoFisicaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Avaliação não encontrada"));
+
+        avaliacao.setAtivo(ativo);
+        avaliacaoFisicaRepository.save(avaliacao);
     }
 
     private Double calcularIMC(Double pesoKg, Double alturaCm) {

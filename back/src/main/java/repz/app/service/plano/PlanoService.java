@@ -10,9 +10,13 @@ public interface PlanoService {
 
     void criar(PlanoPostRequest dto);
 
-    List<PlanoResponse> listar();
+    List<PlanoResponse> findAll();
 
-    void editar(Integer id, PlanoPutRequest dto);
+    PlanoResponse findById(Integer id);
 
-    void inativar(Integer id);
+    void atualizar(Integer id, PlanoPutRequest dto);
+
+    void ativar(Integer id);
+
+    void desativar(Integer id);
 }

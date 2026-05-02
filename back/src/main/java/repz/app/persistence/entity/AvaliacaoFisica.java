@@ -54,4 +54,7 @@ public class AvaliacaoFisica {
 
     @Column(name = "medidas")
     private String medidas;
+
+    @Column(name = "ativo")
+    private Boolean ativo = true;
 }

@@ -22,19 +22,32 @@ public class FrequenciaControllerImpl implements FrequenciaController {
 
     @Override
     @PreAuthorize("hasAnyRole('USUARIO', 'PERSONAL')")
-    public FrequenciaResponse registrarFrequencia(FrequenciaCreateRequest request, Authentication auth) {
-        return frequenciaService.registrarFrequencia(request, auth);
+    public FrequenciaResponse criar(FrequenciaCreateRequest request, Long academiaId, Authentication auth) {
+        return frequenciaService.criar(request, academiaId, auth);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('PERSONAL', 'ACADEMIA', 'ADMIN')")
-    public List<FrequenciaResponse> filtrar(Long aluno, Long academia, LocalDateTime inicio, LocalDateTime fim) {
+    public List<FrequenciaResponse> findAll(
+            Long aluno,
+            Long academia,
+            LocalDateTime inicio,
+            LocalDateTime fim,
+            Long academiaHeader,
+            Authentication auth) {
+        Long academiaId = academiaHeader != null ? academiaHeader : academia;
         if (aluno != null) {
-            return frequenciaService.filtrarPorPeriodo(aluno, inicio, fim);
-        } else if (academia != null) {
-            return frequenciaService.filtrarPorAcademiaEPeriodo(academia, inicio, fim);
+            return frequenciaService.filtrarPorPeriodo(aluno, academiaId, inicio, fim, auth);
+        } else if (academiaId != null) {
+            return frequenciaService.filtrarPorAcademiaEPeriodo(academiaId, inicio, fim, auth);
         }
-        throw new RuntimeException("Parâmetro aluno ou academia deve ser informado");
+        throw new RuntimeException("Parâmetro aluno, academia ou header X-Academia-Id deve ser informado");
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('USUARIO', 'PERSONAL', 'ACADEMIA', 'ADMIN')")
+    public FrequenciaResponse findById(Long id) {
+        return frequenciaService.findById(id);
     }
 
     @Override
@@ -46,21 +59,33 @@ public class FrequenciaControllerImpl implements FrequenciaController {
 
     @Override
     @PreAuthorize("hasAnyRole('PERSONAL', 'ACADEMIA', 'ADMIN')")
-    public List<AlunoInativoResponse> alunosInativos(Long academia) {
-        return frequenciaService.obterAlunosInativos(academia);
+    public List<AlunoInativoResponse> alunosInativos(Long academia, Long academiaHeader, Authentication auth) {
+        Long academiaId = academiaHeader != null ? academiaHeader : academia;
+        return frequenciaService.obterAlunosInativos(academiaId, auth);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('ACADEMIA', 'ADMIN')")
-    public FrequenciaRelatorioResponse obterRelatorio(Long academia, LocalDateTime inicio, LocalDateTime fim, Authentication auth) {
-        return frequenciaService.obterRelatorio(academia, inicio, fim, auth);
+    public FrequenciaRelatorioResponse obterRelatorio(
+            Long academia,
+            LocalDateTime inicio,
+            LocalDateTime fim,
+            Long academiaHeader,
+            Authentication auth) {
+        Long academiaId = academiaHeader != null ? academiaHeader : academia;
+        return frequenciaService.obterRelatorio(academiaId, inicio, fim, auth);
     }
 
     @Override
-    public void deletar(Long id) {
-        frequenciaService.deletar(id);
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ACADEMIA', 'ADMIN')")
+    public void ativar(Long id) {
+        frequenciaService.ativar(id);
     }
+
+    @Override
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ACADEMIA', 'ADMIN')")
+    public void desativar(Long id) {
+        frequenciaService.desativar(id);
+    }
+
 }
-
-
-
