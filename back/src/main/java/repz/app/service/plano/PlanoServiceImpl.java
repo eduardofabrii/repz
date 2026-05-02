@@ -11,6 +11,7 @@ import repz.app.persistence.entity.User;
 import repz.app.persistence.repository.PlanoRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +20,8 @@ public class PlanoServiceImpl implements PlanoService {
     private final PlanoRepository planoRepository;
 
     private User usuarioLogado() {
-        return (User) SecurityContextHolder.getContext()
-                .getAuthentication()
+        return (User) Objects.requireNonNull(SecurityContextHolder.getContext()
+                        .getAuthentication())
                 .getPrincipal();
     }
 
@@ -41,23 +42,28 @@ public class PlanoServiceImpl implements PlanoService {
     }
 
     @Override
-    public List<PlanoResponse> listar() {
+    public List<PlanoResponse> findAll() {
 
         User academia = usuarioLogado();
 
         return planoRepository.findByAcademia(academia)
                 .stream()
-                .map(p -> new PlanoResponse(
-                        p.getId(),
-                        p.getNome(),
-                        p.getDuracaoDias(),
-                        p.getValor(),
-                        p.getAtivo()))
+                .map(this::toResponse)
                 .toList();
     }
 
     @Override
-    public void editar(Integer id, PlanoPutRequest dto) {
+    public PlanoResponse findById(Integer id) {
+        User academia = usuarioLogado();
+
+        Plano plano = planoRepository.findByIdAndAcademia(id, academia)
+                .orElseThrow();
+
+        return toResponse(plano);
+    }
+
+    @Override
+    public void atualizar(Integer id, PlanoPutRequest dto) {
 
         User academia = usuarioLogado();
 
@@ -72,15 +78,33 @@ public class PlanoServiceImpl implements PlanoService {
     }
 
     @Override
-    public void inativar(Integer id) {
+    public void ativar(Integer id) {
+        alterarStatus(id, true);
+    }
+
+    @Override
+    public void desativar(Integer id) {
+        alterarStatus(id, false);
+    }
+
+    private void alterarStatus(Integer id, boolean ativo) {
 
         User academia = usuarioLogado();
 
         Plano plano = planoRepository.findByIdAndAcademia(id, academia)
                 .orElseThrow();
 
-        plano.setAtivo(false);
+        plano.setAtivo(ativo);
 
         planoRepository.save(plano);
+    }
+
+    private PlanoResponse toResponse(Plano plano) {
+        return new PlanoResponse(
+                plano.getId(),
+                plano.getNome(),
+                plano.getDuracaoDias(),
+                plano.getValor(),
+                plano.getAtivo());
     }
 }

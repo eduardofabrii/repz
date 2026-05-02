@@ -1,4 +1,4 @@
-package repz.app.controller;
+package repz.app.controller.impl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/health")
+@RequestMapping("/api/health")
 @Tag(name = "Health")
-public class HealthController {
+public class HealthImplController {
 
     @GetMapping
     @Operation(summary = "Health check", description = "Retorna o status da aplicação")

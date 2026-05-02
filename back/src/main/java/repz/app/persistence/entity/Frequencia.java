@@ -6,6 +6,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,5 +38,8 @@ public class Frequencia {
     @ManyToOne
     @JoinColumn(name = "id_academia")
     private Academia academia;
+
+    @Column(name = "ativo")
+    private Boolean ativo = true;
 
 }

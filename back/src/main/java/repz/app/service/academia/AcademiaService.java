@@ -11,7 +11,6 @@ import repz.app.persistence.entity.Academia;
 import repz.app.persistence.entity.User;
 import repz.app.persistence.mapper.AcademiaMapper;
 import repz.app.persistence.repository.AcademiaRepository;
-import repz.app.persistence.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
 public class AcademiaService {
 
     private final AcademiaRepository academiaRepository;
-    private final UserRepository userRepository;
     private final AcademiaMapper academiaMapper;
 
     public AcademiaResponse criar(AcademiaCreateRequest dto) {
@@ -36,21 +34,14 @@ public class AcademiaService {
     }
 
     @Transactional(readOnly = true)
-    public List<AcademiaResponse> listarTodas() {
+    public List<AcademiaResponse> findAll() {
         return academiaRepository.findAll().stream()
                 .map(academiaMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<AcademiaResponse> listarAativas() {
-        return academiaRepository.findByActiveTrue().stream()
-                .map(academiaMapper::toResponseDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public AcademiaResponse obterPorId(Long id) {
+    public AcademiaResponse findById(Long id) {
         Academia academia = academiaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Academia não encontrada"));
         return academiaMapper.toResponseDTO(academia);
@@ -71,11 +62,19 @@ public class AcademiaService {
         return academiaMapper.toResponseDTO(updated);
     }
 
-    public AcademiaResponse inativar(Long id) {
+    public AcademiaResponse ativar(Long id) {
+        return alterarStatus(id, true);
+    }
+
+    public AcademiaResponse desativar(Long id) {
+        return alterarStatus(id, false);
+    }
+
+    private AcademiaResponse alterarStatus(Long id, boolean ativo) {
         Academia academia = academiaRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Academia não encontrada"));
 
-        academia.setActive(false);
+        academia.setActive(ativo);
         Academia updated = academiaRepository.save(academia);
         return academiaMapper.toResponseDTO(updated);
     }
@@ -88,7 +87,7 @@ public class AcademiaService {
             throw new IllegalArgumentException("Usuário não possui academia associada");
         }
 
-        return academiaMapper.toResponseDTO(academias.get(0));
+        return academiaMapper.toResponseDTO(academias.getFirst());
     }
 
     public AcademiaResponse atualizarMinha(User currentUser, AcademiaUpdateRequest dto) {
@@ -98,7 +97,7 @@ public class AcademiaService {
             throw new IllegalArgumentException("Usuário não possui academia associada");
         }
 
-        Academia academia = academias.get(0);
+        Academia academia = academias.getFirst();
 
         if (!academia.getCnpj().equals(dto.getCnpj())) {
             throw new IllegalArgumentException("Não é permitido alterar o CNPJ da academia");

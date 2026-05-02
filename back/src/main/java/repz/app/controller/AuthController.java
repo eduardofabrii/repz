@@ -11,7 +11,7 @@ import repz.app.dto.auth.AuthenticationDTO;
 import repz.app.dto.auth.LoginResponseDTO;
 
 @Tag(name = "Auth", description = "Endpoints para controle de autorização e autenticação")
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 public interface AuthController {
 
     @PostMapping("/login")
@@ -22,7 +22,4 @@ public interface AuthController {
 
     @PostMapping("/refresh")
     ResponseEntity<LoginResponseDTO> refresh(@RequestBody String refreshToken);
-
-    
 }
-

@@ -40,19 +40,19 @@ public class AcademiaControllerImpl implements AcademiaController {
     @Override
     @Operation(summary = "Listar academias", description = "Listar todas as academias (apenas ADMIN)")
     @ApiResponse(responseCode = "200", description = "Lista de academias")
-    public ResponseEntity<List<AcademiaResponse>> listar() {
+    public ResponseEntity<List<AcademiaResponse>> findAll() {
         validateAdminRole();
-        List<AcademiaResponse> academias = academiaService.listarTodas();
+        List<AcademiaResponse> academias = academiaService.findAll();
         return ResponseEntity.ok(academias);
     }
 
     @Override
     @Operation(summary = "Obter academia", description = "Buscar academia por ID (apenas ADMIN)")
     @ApiResponse(responseCode = "200", description = "Academia encontrada")
-    public ResponseEntity<AcademiaResponse> obterPorId(
+    public ResponseEntity<AcademiaResponse> findById(
             @Parameter(description = "ID da academia") Long id) {
         validateAdminRole();
-        AcademiaResponse academia = academiaService.obterPorId(id);
+        AcademiaResponse academia = academiaService.findById(id);
         return ResponseEntity.ok(academia);
     }
 
@@ -68,12 +68,22 @@ public class AcademiaControllerImpl implements AcademiaController {
     }
 
     @Override
-    @Operation(summary = "Inativar academia", description = "Inativar academia (soft delete)")
-    @ApiResponse(responseCode = "200", description = "Academia inativada")
-    public ResponseEntity<AcademiaResponse> inativar(
+    @Operation(summary = "Ativar academia", description = "Ativar academia")
+    @ApiResponse(responseCode = "200", description = "Academia ativada")
+    public ResponseEntity<AcademiaResponse> ativar(
             @Parameter(description = "ID da academia") Long id) {
         validateAdminRole();
-        AcademiaResponse deactivated = academiaService.inativar(id);
+        AcademiaResponse activated = academiaService.ativar(id);
+        return ResponseEntity.ok(activated);
+    }
+
+    @Override
+    @Operation(summary = "Desativar academia", description = "Desativar academia (soft delete)")
+    @ApiResponse(responseCode = "200", description = "Academia desativada")
+    public ResponseEntity<AcademiaResponse> desativar(
+            @Parameter(description = "ID da academia") Long id) {
+        validateAdminRole();
+        AcademiaResponse deactivated = academiaService.desativar(id);
         return ResponseEntity.ok(deactivated);
     }
 

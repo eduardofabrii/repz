@@ -16,17 +16,17 @@ import repz.app.dto.response.AcademiaResponse;
 
 import java.util.List;
 
-@RequestMapping("/academias")
+@RequestMapping("/api/academias")
 public interface AcademiaController {
 
     @PostMapping
     ResponseEntity<AcademiaResponse> criar(@RequestBody @Valid AcademiaCreateRequest dto);
 
     @GetMapping
-    ResponseEntity<List<AcademiaResponse>> listar();
+    ResponseEntity<List<AcademiaResponse>> findAll();
 
     @GetMapping("/{id}")
-    ResponseEntity<AcademiaResponse> obterPorId(@PathVariable Long id);
+    ResponseEntity<AcademiaResponse> findById(@PathVariable Long id);
 
     @PutMapping("/{id}")
     ResponseEntity<AcademiaResponse> atualizar(
@@ -34,8 +34,11 @@ public interface AcademiaController {
             @RequestBody @Valid AcademiaUpdateRequest dto
     );
 
-    @PatchMapping("/{id}")
-    ResponseEntity<AcademiaResponse> inativar(@PathVariable Long id);
+    @PatchMapping("/{id}/ativar")
+    ResponseEntity<AcademiaResponse> ativar(@PathVariable Long id);
+
+    @PatchMapping("/{id}/desativar")
+    ResponseEntity<AcademiaResponse> desativar(@PathVariable Long id);
 
     @GetMapping("/me")
     ResponseEntity<AcademiaResponse> obterMinha();

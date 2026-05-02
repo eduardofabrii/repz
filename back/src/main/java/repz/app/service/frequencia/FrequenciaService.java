@@ -16,10 +16,12 @@ import repz.app.persistence.repository.AcademiaRepository;
 import repz.app.persistence.repository.FrequenciaRepository;
 import repz.app.persistence.repository.PersonalRepository;
 import repz.app.persistence.repository.UserRepository;
+import repz.app.service.academia.AcademiaContextService;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -29,10 +31,12 @@ public class FrequenciaService {
     private final UserRepository userRepository;
     private final AcademiaRepository academiaRepository;
     private final PersonalRepository personalRepository;
+    private final AcademiaContextService academiaContextService;
 
-    public FrequenciaResponse registrarFrequencia(FrequenciaCreateRequest request, Authentication auth) {
+    public FrequenciaResponse criar(FrequenciaCreateRequest request, Long academiaHeaderId, Authentication auth) {
         User currentUser = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        Long academiaId = resolveAcademiaFromRequest(request.getAcademiaId(), academiaHeaderId, auth);
 
         if (currentUser.getRole() == UserRole.USUARIO) {
             if (!currentUser.getId().equals(request.getAlunoId())) {
@@ -44,7 +48,7 @@ public class FrequenciaService {
 
         User aluno = userRepository.findById(Math.toIntExact(request.getAlunoId()))
                 .orElseThrow(() -> new RuntimeException("Aluno não encontrado"));
-        Academia academia = academiaRepository.findById(request.getAcademiaId())
+        Academia academia = academiaRepository.findById(academiaId)
                 .orElseThrow(() -> new RuntimeException("Academia não encontrada"));
         Personal registradoPor = null;
         if (request.getPersonalId() != null) {
@@ -62,14 +66,35 @@ public class FrequenciaService {
         return toDTO(saved);
     }
 
-    public List<FrequenciaResponse> filtrarPorPeriodo(Long alunoId, LocalDateTime inicio, LocalDateTime fim) {
+    public List<FrequenciaResponse> filtrarPorPeriodo(
+            Long alunoId,
+            Long academiaId,
+            LocalDateTime inicio,
+            LocalDateTime fim,
+            Authentication auth) {
+        Long resolvedAcademiaId = academiaContextService.resolveOptional(auth, academiaId);
         List<Frequencia> frequencias = frequenciaRepository.findByAlunoIdAndPeriodo(alunoId, inicio, fim);
+        return frequencias.stream()
+                .filter(f -> resolvedAcademiaId == null || f.getAcademia().getId().equals(resolvedAcademiaId))
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<FrequenciaResponse> filtrarPorAcademiaEPeriodo(
+            Long academiaId,
+            LocalDateTime inicio,
+            LocalDateTime fim,
+            Authentication auth) {
+        Long resolvedAcademiaId = academiaContextService.resolveRequired(auth, academiaId);
+        List<Frequencia> frequencias = frequenciaRepository.findByAcademiaIdAndPeriodo(resolvedAcademiaId, inicio, fim);
         return frequencias.stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<FrequenciaResponse> filtrarPorAcademiaEPeriodo(Long academiaId, LocalDateTime inicio, LocalDateTime fim) {
-        List<Frequencia> frequencias = frequenciaRepository.findByAcademiaIdAndPeriodo(academiaId, inicio, fim);
-        return frequencias.stream().map(this::toDTO).collect(Collectors.toList());
+    public FrequenciaResponse findById(Long id) {
+        Frequencia frequencia = frequenciaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Frequência não encontrada"));
+
+        return toDTO(frequencia);
     }
 
     public List<FrequenciaResponse> meuHistorico(Long alunoId) {
@@ -77,16 +102,17 @@ public class FrequenciaService {
         return frequencias.stream().map(this::toDTO).collect(Collectors.toList());
     }
 
-    public List<AlunoInativoResponse> obterAlunosInativos(Long academiaId) {
-        academiaRepository.findById(academiaId)
+    public List<AlunoInativoResponse> obterAlunosInativos(Long academiaId, Authentication auth) {
+        Long resolvedAcademiaId = academiaContextService.resolveRequired(auth, academiaId);
+        academiaRepository.findById(resolvedAcademiaId)
                 .orElseThrow(() -> new RuntimeException("Academia não encontrada"));
 
         List<Frequencia> frequencias = frequenciaRepository.findAll().stream()
-                .filter(f -> f.getAcademia().getId().equals(academiaId))
-                .collect(Collectors.toList());
+                .filter(f -> f.getAcademia().getId().equals(resolvedAcademiaId))
+                .toList();
 
         return frequencias.stream()
-                .collect(Collectors.groupingBy(f -> f.getAluno()))
+                .collect(Collectors.groupingBy(Frequencia::getAluno))
                 .entrySet().stream()
                 .map(entry -> {
                     User aluno = entry.getKey();
@@ -113,7 +139,7 @@ public class FrequenciaService {
     }
 
     public FrequenciaRelatorioResponse obterRelatorio(Long academiaId, LocalDateTime inicio, LocalDateTime fim, Authentication auth) {
-        String email = ((org.springframework.security.core.userdetails.UserDetails) auth.getPrincipal()).getUsername();
+        String email = ((org.springframework.security.core.userdetails.UserDetails) Objects.requireNonNull(auth.getPrincipal())).getUsername();
         User currentUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
@@ -121,7 +147,8 @@ public class FrequenciaService {
             throw new RuntimeException("Acesso negado ao relatório");
         }
 
-        List<Frequencia> frequencias = frequenciaRepository.findByAcademiaIdAndPeriodo(academiaId, inicio, fim);
+        Long resolvedAcademiaId = academiaContextService.resolveRequired(auth, academiaId);
+        List<Frequencia> frequencias = frequenciaRepository.findByAcademiaIdAndPeriodo(resolvedAcademiaId, inicio, fim);
 
         var frequenciaPorAluno = frequencias.stream()
                 .collect(Collectors.groupingByConcurrent(
@@ -130,7 +157,7 @@ public class FrequenciaService {
                 ));
 
         FrequenciaRelatorioResponse response = new FrequenciaRelatorioResponse();
-        response.setAcademiaId(academiaId);
+        response.setAcademiaId(resolvedAcademiaId);
         response.setPeriodo(java.util.Map.of("inicio", inicio, "fim", fim));
         response.setTotalFrequencias((long) frequencias.size());
         response.setFrequenciaPorAluno(frequenciaPorAluno);
@@ -138,8 +165,31 @@ public class FrequenciaService {
         return response;
     }
 
-    public void deletar(Long id) {
-        frequenciaRepository.deleteById(id);
+    public void ativar(Long id) {
+        alterarStatus(id, true);
+    }
+
+    public void desativar(Long id) {
+        alterarStatus(id, false);
+    }
+
+    private void alterarStatus(Long id, boolean ativo) {
+        Frequencia frequencia = frequenciaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Frequência não encontrada"));
+
+        frequencia.setAtivo(ativo);
+        frequenciaRepository.save(frequencia);
+    }
+
+    private Long resolveAcademiaFromRequest(Long requestAcademiaId, Long headerAcademiaId, Authentication auth) {
+        Long requestedAcademiaId = headerAcademiaId != null ? headerAcademiaId : requestAcademiaId;
+        Long resolvedAcademiaId = academiaContextService.resolveRequired(auth, requestedAcademiaId);
+
+        if (requestAcademiaId != null && !requestAcademiaId.equals(resolvedAcademiaId)) {
+            throw new RuntimeException("Academia do corpo da requisição difere do contexto informado");
+        }
+
+        return resolvedAcademiaId;
     }
 
 
@@ -156,5 +206,3 @@ public class FrequenciaService {
         );
     }
 }
-
-

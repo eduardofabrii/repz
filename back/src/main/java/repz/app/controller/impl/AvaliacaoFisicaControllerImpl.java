@@ -21,14 +21,20 @@ public class AvaliacaoFisicaControllerImpl implements AvaliacaoFisicaController 
 
     @Override
     @PreAuthorize("hasRole('PERSONAL')")
-    public AvaliacaoFisicaResponse registrarAvaliacao(AvaliacaoFisicaCreateRequest request, Authentication auth) {
-        return avaliacaoFisicaService.registrarAvaliacao(request, auth);
+    public AvaliacaoFisicaResponse criar(AvaliacaoFisicaCreateRequest request, Authentication auth) {
+        return avaliacaoFisicaService.criar(request, auth);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('PERSONAL', 'USUARIO', 'ACADEMIA', 'ADMIN')")
-    public List<AvaliacaoFisicaResponse> obterHistorico(Long aluno, Authentication auth) {
-        return avaliacaoFisicaService.obterHistorico(aluno, auth);
+    public List<AvaliacaoFisicaResponse> findAll(Long aluno, Authentication auth) {
+        return avaliacaoFisicaService.findAll(aluno, auth);
+    }
+
+    @Override
+    @PreAuthorize("hasAnyRole('PERSONAL', 'USUARIO', 'ACADEMIA', 'ADMIN')")
+    public AvaliacaoFisicaResponse findById(Long id) {
+        return avaliacaoFisicaService.findById(id);
     }
 
     @Override
@@ -39,15 +45,20 @@ public class AvaliacaoFisicaControllerImpl implements AvaliacaoFisicaController 
 
     @Override
     @PreAuthorize("hasAnyRole('ACADEMIA', 'ADMIN')")
-    public List<AvaliacaoFisicaUnidadeResponse> obterDaUnidade(Authentication auth) {
-        return avaliacaoFisicaService.obterDaUnidade(auth);
+    public List<AvaliacaoFisicaUnidadeResponse> obterDaUnidade(Long academiaId, Authentication auth) {
+        return avaliacaoFisicaService.obterDaUnidade(academiaId, auth);
     }
 
     @Override
     @PreAuthorize("hasAnyRole('PERSONAL', 'ADMIN')")
-    public void deletar(Long id) {
-        avaliacaoFisicaService.deletarAvaliacao(id);
+    public void ativar(Long id) {
+        avaliacaoFisicaService.ativar(id);
     }
+
+    @Override
+    @PreAuthorize("hasAnyRole('PERSONAL', 'ADMIN')")
+    public void desativar(Long id) {
+        avaliacaoFisicaService.desativar(id);
+    }
+
 }
-
-

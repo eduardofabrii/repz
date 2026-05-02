@@ -1,48 +1,41 @@
 package repz.app.controller;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import repz.app.dto.request.PlanoPostRequest;
 import repz.app.dto.request.PlanoPutRequest;
 import repz.app.dto.response.PlanoResponse;
-import repz.app.service.plano.PlanoService;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/planos")
-@RequiredArgsConstructor
+@RequestMapping("/api/planos")
 @Tag(name = "Planos")
-public class PlanoController {
-
-    private final PlanoService planoService;
+public interface PlanoController {
 
     @PostMapping
-    public ResponseEntity<Void> criar(@RequestBody PlanoPostRequest dto) {
-        planoService.criar(dto);
-        return ResponseEntity.status(201).build();
-    }
+    ResponseEntity<Void> criar(@RequestBody PlanoPostRequest dto);
 
     @GetMapping
-    public ResponseEntity<List<PlanoResponse>> listar() {
-        return ResponseEntity.ok(planoService.listar());
-    }
+    ResponseEntity<List<PlanoResponse>> findAll();
+
+    @GetMapping("/{id}")
+    ResponseEntity<PlanoResponse> findById(@PathVariable Integer id);
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> editar(
+    ResponseEntity<Void> atualizar(
             @PathVariable Integer id,
-            @RequestBody PlanoPutRequest dto) {
+            @RequestBody PlanoPutRequest dto);
 
-        planoService.editar(id, dto);
-        return ResponseEntity.ok().build();
-    }
+    @PatchMapping("/{id}/ativar")
+    ResponseEntity<Void> ativar(@PathVariable Integer id);
 
-    @PatchMapping("/{id}/inativar")
-    public ResponseEntity<Void> inativar(@PathVariable Integer id) {
-        planoService.inativar(id);
-        return ResponseEntity.ok().build();
-    }
+    @PatchMapping("/{id}/desativar")
+    ResponseEntity<Void> desativar(@PathVariable Integer id);
 }

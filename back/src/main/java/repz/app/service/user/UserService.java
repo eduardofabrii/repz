@@ -7,17 +7,17 @@ import repz.app.dto.response.UserGetResponse;
 import java.util.List;
 
 public interface UserService {
-    List<UserGetResponse> findAllUsers();
+    List<UserGetResponse> findAll();
 
-    UserGetResponse findUserById(Integer id);
+    UserGetResponse findById(Integer id);
 
     void updateLastLogin(String email);
 
-    void registerUser(RegistrationDTO registrationDTO);
+    void criar(RegistrationDTO registrationDTO);
 
-    void updateUser(Integer id, UserPutRequest userPutRequest);
+    void atualizar(Integer id, UserPutRequest userPutRequest);
 
-    void deleteUser(Integer id);
+    void desativar(Integer id);
 
-    void restoreUser(Integer id);
+    void ativar(Integer id);
 }
