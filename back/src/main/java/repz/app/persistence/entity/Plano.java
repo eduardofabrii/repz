@@ -2,6 +2,7 @@ package repz.app.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import repz.app.persistence.entity.common.AuditoriaBase;
 
 import java.math.BigDecimal;
 
@@ -12,7 +13,8 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Plano {
+@EqualsAndHashCode(callSuper = true)
+public class Plano extends AuditoriaBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -14,6 +14,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -44,9 +46,11 @@ public class Personal {
     private Academia academia;
 
     @Column(name = "data_inclusao")
+    @CreationTimestamp
     private LocalDateTime dtInclusao;
 
     @Column(name = "data_alteracao")
+    @UpdateTimestamp
     private LocalDateTime dtAlteracao;
 
     @Column(name = "nome_usuario")
