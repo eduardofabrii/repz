@@ -1,0 +1,207 @@
+name: CD - Ambiente Produção
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cd-prod
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Production build and tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: repz
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d repz"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/repz
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ci-prod-build-secret
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build back-end
+        working-directory: ./back
+        run: mvn -B clean verify
+
+      - name: Upload back-end artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: back/target/*.jar
+          if-no-files-found: error
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/repz/package-lock.json
+
+      - name: Install front-end dependencies
+        working-directory: ./frontend/repz
+        run: npm ci
+
+      - name: Test front-end
+        working-directory: ./frontend/repz
+        run: npm run test:ci
+
+      - name: Build front-end
+        working-directory: ./frontend/repz
+        run: npm run build -- --configuration production
+
+      - name: Upload front-end artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/repz/dist/repz/**
+          if-no-files-found: error
+
+  load-test:
+    name: RNF10 load test - 500 concurrent users
+    needs: build
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: repz
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d repz"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_URL: jdbc:postgresql://localhost:5432/repz
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ci-prod-load-secret
+      LOAD_TEST_BASE_URL: http://localhost:8080
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download back-end artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: artifacts/backend
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Start application
+        run: |
+          JAR_FILE="$(find artifacts/backend -name '*.jar' -print -quit)"
+          java -jar "$JAR_FILE" > app.log 2>&1 &
+          echo $! > app.pid
+          for attempt in {1..60}; do
+            if curl --fail --silent "$LOAD_TEST_BASE_URL/actuator/health" > /dev/null; then
+              exit 0
+            fi
+            sleep 2
+          done
+          cat app.log
+          exit 1
+
+      - name: Set up k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Load Test (RNF10)
+        run: k6 run performance/rnf10-500-users.js
+
+      - name: Upload application log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: load-test-application-log
+          path: app.log
+          if-no-files-found: ignore
+
+  deploy-prod:
+    name: Deploy production
+    needs: load-test
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download back-end artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: artifacts/backend
+
+      - name: Download front-end artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: artifacts/frontend
+
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PROD_SSH_KEY }}
+
+      - name: Deploy with rollback support
+        id: deploy
+        env:
+          PROD_SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+          PROD_SSH_USER: ${{ secrets.PROD_SSH_USER }}
+          PROD_DEPLOY_DIR: ${{ secrets.PROD_DEPLOY_DIR }}
+          PROD_SERVICE_NAME: ${{ secrets.PROD_SERVICE_NAME }}
+          PROD_HEALTHCHECK_URL: ${{ secrets.PROD_HEALTHCHECK_URL }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: bash scripts/deploy-production.sh
+
+      - name: Rollback after failed deploy
+        if: failure() && steps.deploy.outcome == 'failure'
+        env:
+          PROD_SSH_HOST: ${{ secrets.PROD_SSH_HOST }}
+          PROD_SSH_USER: ${{ secrets.PROD_SSH_USER }}
+          PROD_DEPLOY_DIR: ${{ secrets.PROD_DEPLOY_DIR }}
+          PROD_SERVICE_NAME: ${{ secrets.PROD_SERVICE_NAME }}
+        run: bash scripts/rollback-production.sh
+
+      - name: Deployment summary
+        run: |
+          echo "Deploy approved, completed, and validated successfully."
