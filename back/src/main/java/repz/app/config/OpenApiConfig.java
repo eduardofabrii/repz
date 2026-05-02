@@ -15,7 +15,7 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Repz API")
-                        .description("API da plataforma Repz")
+                        .description("API para gestão de academias, usuários, personais, planos, check-ins e avaliações físicas.")
                         .version("1.0.0"))
                 .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"))
                 .components(new io.swagger.v3.oas.models.Components()
@@ -27,5 +27,4 @@ public class OpenApiConfig {
                                         .description("Insira o token JWT. Ex: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")));
     }
 }
-
 

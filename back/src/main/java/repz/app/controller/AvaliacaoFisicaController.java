@@ -3,6 +3,7 @@ package repz.app.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,52 +24,93 @@ import repz.app.dto.response.AvaliacaoFisicaUnidadeResponse;
 
 import java.util.List;
 
+@Tag(name = "Avaliações Físicas", description = "Registro e acompanhamento de avaliações físicas")
 @RequestMapping("/api/avaliacoes")
-@Tag(name = "Avaliação Física", description = "Gerenciar avaliações físicas dos alunos")
 public interface AvaliacaoFisicaController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Registrar avaliação", description = "Registrar avaliação física (peso, altura, % gordura, medidas) com IMC calculado automaticamente")
-    @ApiResponse(responseCode = "201", description = "Avaliação registrada com sucesso")
-    AvaliacaoFisicaResponse criar(@Valid @RequestBody AvaliacaoFisicaCreateRequest request, Authentication auth);
+    @Operation(summary = "Criar avaliação", description = "Registra uma avaliação física e calcula o IMC automaticamente.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Avaliação criada com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    AvaliacaoFisicaResponse criar(
+            @Valid @RequestBody AvaliacaoFisicaCreateRequest request,
+            @Parameter(hidden = true) Authentication auth);
 
     @GetMapping
-    @Operation(summary = "Histórico de avaliações", description = "Obter histórico de avaliações em ordem cronológica")
-    @ApiResponse(responseCode = "200", description = "Histórico de avaliações")
+    @Operation(summary = "Listar avaliações", description = "Lista o histórico de avaliações de um aluno.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Avaliações encontradas"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     List<AvaliacaoFisicaResponse> findAll(
-            @Parameter(description = "ID do aluno", required = true)
+            @Parameter(description = "ID do aluno", example = "1")
             @RequestParam Long aluno,
-            Authentication auth);
+            @Parameter(hidden = true) Authentication auth);
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obter avaliação", description = "Buscar avaliação física por ID")
-    @ApiResponse(responseCode = "200", description = "Avaliação encontrada")
-    AvaliacaoFisicaResponse findById(@Parameter(description = "ID da avaliação") @PathVariable Long id);
+    @Operation(summary = "Buscar avaliação", description = "Retorna os dados de uma avaliação física pelo ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Avaliação encontrada"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Avaliação não encontrada")
+    })
+    AvaliacaoFisicaResponse findById(
+            @Parameter(description = "ID da avaliação", example = "1")
+            @PathVariable Long id);
 
     @GetMapping("/grafico")
-    @Operation(summary = "Dados para gráfico", description = "Obter dados para gráfico comparativo de evolução")
-    @ApiResponse(responseCode = "200", description = "Dados para gráfico evolutivo")
+    @Operation(summary = "Gerar gráfico", description = "Retorna dados de evolução física para gráficos.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Dados do gráfico retornados"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     AvaliacaoFisicaGraficoResponse obterGrafico(
-            @Parameter(description = "ID do aluno", required = true)
+            @Parameter(description = "ID do aluno", example = "1")
             @RequestParam Long aluno,
-            Authentication auth);
+            @Parameter(hidden = true) Authentication auth);
 
     @GetMapping("/unidade")
-    @Operation(summary = "Avaliações da unidade", description = "Visualizar avaliações de todos os alunos da unidade (somente leitura)")
-    @ApiResponse(responseCode = "200", description = "Avaliações da unidade")
+    @Operation(summary = "Listar avaliações da unidade", description = "Lista avaliações de alunos de uma academia.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Avaliações encontradas"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     List<AvaliacaoFisicaUnidadeResponse> obterDaUnidade(
+            @Parameter(description = "ID da academia no contexto da requisição", example = "1")
             @RequestHeader(value = "X-Academia-Id", required = false) Long academiaId,
-            Authentication auth);
+            @Parameter(hidden = true) Authentication auth);
 
     @PatchMapping("/{id}/ativar")
-    @Operation(summary = "Ativar avaliação", description = "Ativar avaliação física")
-    @ApiResponse(responseCode = "200", description = "Avaliação ativada")
-    void ativar(@Parameter(description = "ID da avaliação") @PathVariable Long id);
+    @Operation(summary = "Ativar avaliação", description = "Reativa uma avaliação física desativada.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Avaliação ativada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Avaliação não encontrada")
+    })
+    void ativar(
+            @Parameter(description = "ID da avaliação", example = "1")
+            @PathVariable Long id);
 
     @PatchMapping("/{id}/desativar")
-    @Operation(summary = "Desativar avaliação", description = "Desativar avaliação física")
-    @ApiResponse(responseCode = "200", description = "Avaliação desativada")
-    void desativar(@Parameter(description = "ID da avaliação") @PathVariable Long id);
+    @Operation(summary = "Desativar avaliação", description = "Desativa uma avaliação física por soft delete.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Avaliação desativada com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Avaliação não encontrada")
+    })
+    void desativar(
+            @Parameter(description = "ID da avaliação", example = "1")
+            @PathVariable Long id);
 
 }

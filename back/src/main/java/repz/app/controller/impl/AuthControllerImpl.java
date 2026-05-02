@@ -1,14 +1,10 @@
 package repz.app.controller.impl;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import repz.app.controller.AuthController;
 import repz.app.dto.auth.AuthenticationDTO;
@@ -32,8 +28,8 @@ public class AuthControllerImpl implements AuthController {
     private final UserRepository userRepository;
     private final Mensagens mensagens;
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO dto) {
+    @Override
+    public ResponseEntity<LoginResponseDTO> login(AuthenticationDTO dto) {
         var userPassword = new UsernamePasswordAuthenticationToken(dto.email(), dto.password());
         var auth = this.authenticationManager.authenticate(userPassword);
         var user = (User) Objects.requireNonNull(auth.getPrincipal());
@@ -45,13 +41,13 @@ public class AuthControllerImpl implements AuthController {
         return ResponseEntity.ok(new LoginResponseDTO(token, refreshToken));
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+    @Override
+    public ResponseEntity<Void> logout(String authHeader) {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<LoginResponseDTO> refresh(@RequestBody String refreshToken) {
+    @Override
+    public ResponseEntity<LoginResponseDTO> refresh(String refreshToken) {
         var email = tokenService.validateRefreshToken(refreshToken.trim());
         if (email == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, mensagens.get("erro.autenticacao"));

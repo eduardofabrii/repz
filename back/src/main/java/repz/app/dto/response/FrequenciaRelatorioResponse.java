@@ -2,6 +2,7 @@ package repz.app.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
+@Schema(description = "Relatório de check-ins por período")
 public class FrequenciaRelatorioResponse {
     private Long academiaId;
 
@@ -22,4 +24,3 @@ public class FrequenciaRelatorioResponse {
 
     private Map<String, Long> frequenciaPorAluno;
 }
-

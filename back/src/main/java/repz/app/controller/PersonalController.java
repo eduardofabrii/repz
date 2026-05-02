@@ -3,6 +3,7 @@ package repz.app.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,69 +24,121 @@ import repz.app.dto.response.PersonalResponse;
 
 import java.util.List;
 
+@Tag(name = "Personais", description = "Cadastro e gestão de personais")
 @RequestMapping("/api/personais")
-@Tag(name = "Personais", description = "Gerenciar personais e instrutores")
 public interface PersonalController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Criar personal", description = "Cadastrar novo personal vinculado à academia")
-    @ApiResponse(responseCode = "201", description = "Personal criado com sucesso")
+    @Operation(summary = "Criar personal", description = "Cadastra um personal vinculado a uma academia.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Personal criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     PersonalResponse criar(
             @Valid @RequestBody PersonalCreateRequest request,
+            @Parameter(description = "ID da academia no contexto da requisição", example = "1")
             @RequestHeader(value = "X-Academia-Id", required = false) Long academiaId,
-            Authentication auth);
+            @Parameter(hidden = true) Authentication auth);
 
     @GetMapping
-    @Operation(summary = "Listar personais", description = "Listar personais (ADMIN vê todos, ACADEMIA vê apenas da sua unidade)")
-    @ApiResponse(responseCode = "200", description = "Lista de personais")
+    @Operation(summary = "Listar personais", description = "Lista os personais disponíveis para o perfil autenticado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Personais encontrados"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     List<PersonalResponse> findAll(
+            @Parameter(description = "ID da academia no contexto da requisição", example = "1")
             @RequestHeader(value = "X-Academia-Id", required = false) Long academiaId,
-            Authentication auth);
+            @Parameter(hidden = true) Authentication auth);
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obter personal", description = "Buscar personal por ID")
-    @ApiResponse(responseCode = "200", description = "Personal encontrado")
-    PersonalResponse findById(@Parameter(description = "ID do personal") @PathVariable Long id);
+    @Operation(summary = "Buscar personal", description = "Retorna os dados de um personal pelo ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Personal encontrado"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Personal não encontrado")
+    })
+    PersonalResponse findById(
+            @Parameter(description = "ID do personal", example = "1")
+            @PathVariable Long id);
 
     @PutMapping("/{id}")
-    @Operation(summary = "Editar personal", description = "Editar dados do personal (especialidade, status)")
-    @ApiResponse(responseCode = "200", description = "Personal atualizado")
+    @Operation(summary = "Atualizar personal", description = "Atualiza os dados de um personal.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Personal atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Personal não encontrado")
+    })
     PersonalResponse atualizar(
-            @Parameter(description = "ID do personal") @PathVariable Long id,
+            @Parameter(description = "ID do personal", example = "1") @PathVariable Long id,
             @Valid @RequestBody PersonalUpdateRequest request,
+            @Parameter(description = "ID da academia no contexto da requisição", example = "1")
             @RequestHeader(value = "X-Academia-Id", required = false) Long academiaId,
-            Authentication auth);
+            @Parameter(hidden = true) Authentication auth);
 
     @PatchMapping("/{id}/ativar")
-    @Operation(summary = "Ativar personal", description = "Ativar personal")
-    @ApiResponse(responseCode = "200", description = "Personal ativado")
+    @Operation(summary = "Ativar personal", description = "Reativa um personal desativado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Personal ativado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Personal não encontrado")
+    })
     PersonalResponse ativar(
-            @Parameter(description = "ID do personal") @PathVariable Long id,
+            @Parameter(description = "ID do personal", example = "1") @PathVariable Long id,
+            @Parameter(description = "ID da academia no contexto da requisição", example = "1")
             @RequestHeader(value = "X-Academia-Id", required = false) Long academiaId,
-            Authentication auth);
+            @Parameter(hidden = true) Authentication auth);
 
     @PatchMapping("/{id}/desativar")
-    @Operation(summary = "Inativar personal", description = "Inativar personal (soft delete)")
-    @ApiResponse(responseCode = "200", description = "Personal inativado")
+    @Operation(summary = "Desativar personal", description = "Desativa um personal por soft delete.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Personal desativado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Personal não encontrado")
+    })
     PersonalResponse desativar(
-            @Parameter(description = "ID do personal") @PathVariable Long id,
+            @Parameter(description = "ID do personal", example = "1") @PathVariable Long id,
+            @Parameter(description = "ID da academia no contexto da requisição", example = "1")
             @RequestHeader(value = "X-Academia-Id", required = false) Long academiaId,
-            Authentication auth);
+            @Parameter(hidden = true) Authentication auth);
 
     @GetMapping("/me")
-    @Operation(summary = "Meu perfil", description = "Ver dados do perfil do personal autenticado")
-    @ApiResponse(responseCode = "200", description = "Dados do personal")
-    PersonalResponse obterMeuPerfil(Authentication auth);
+    @Operation(summary = "Meu perfil", description = "Retorna os dados do personal autenticado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Perfil encontrado"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    PersonalResponse obterMeuPerfil(@Parameter(hidden = true) Authentication auth);
 
     @PutMapping("/me")
-    @Operation(summary = "Editar meu perfil", description = "Editar dados do próprio perfil")
-    @ApiResponse(responseCode = "200", description = "Perfil atualizado")
-    PersonalResponse atualizarMeuPerfil(@Valid @RequestBody PersonalUpdateRequest request, Authentication auth);
+    @Operation(summary = "Atualizar meu perfil", description = "Atualiza os dados do personal autenticado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Perfil atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    PersonalResponse atualizarMeuPerfil(
+            @Valid @RequestBody PersonalUpdateRequest request,
+            @Parameter(hidden = true) Authentication auth);
 
     @GetMapping("/me/alunos")
-    @Operation(summary = "Meus alunos", description = "Painel com lista de alunos vinculados ao personal")
-    @ApiResponse(responseCode = "200", description = "Lista de alunos do personal")
-    PersonalAlunosResponse obterMeusAlunos(Authentication auth);
+    @Operation(summary = "Listar meus alunos", description = "Lista os alunos vinculados ao personal autenticado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Alunos encontrados"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
+    PersonalAlunosResponse obterMeusAlunos(@Parameter(hidden = true) Authentication auth);
 
 }

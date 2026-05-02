@@ -9,6 +9,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import repz.app.dto.request.PlanoPostRequest;
 import repz.app.dto.request.PlanoPutRequest;
@@ -16,27 +20,70 @@ import repz.app.dto.response.PlanoResponse;
 
 import java.util.List;
 
+@Tag(name = "Planos", description = "Cadastro e gestão de planos")
 @RequestMapping("/api/planos")
-@Tag(name = "Planos")
 public interface PlanoController {
 
     @PostMapping
+    @Operation(summary = "Criar plano", description = "Cadastra um novo plano.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Plano criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido")
+    })
     ResponseEntity<Void> criar(@RequestBody @Valid PlanoPostRequest dto);
 
     @GetMapping
+    @Operation(summary = "Listar planos", description = "Lista os planos cadastrados.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Planos encontrados"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido")
+    })
     ResponseEntity<List<PlanoResponse>> findAll();
 
     @GetMapping("/{id}")
-    ResponseEntity<PlanoResponse> findById(@PathVariable Integer id);
+    @Operation(summary = "Buscar plano", description = "Retorna os dados de um plano pelo ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Plano encontrado"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "404", description = "Plano não encontrado")
+    })
+    ResponseEntity<PlanoResponse> findById(
+            @Parameter(description = "ID do plano", example = "1")
+            @PathVariable Integer id);
 
     @PutMapping("/{id}")
+    @Operation(summary = "Atualizar plano", description = "Atualiza os dados de um plano.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Plano atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "404", description = "Plano não encontrado")
+    })
     ResponseEntity<Void> atualizar(
+            @Parameter(description = "ID do plano", example = "1")
             @PathVariable Integer id,
             @RequestBody @Valid PlanoPutRequest dto);
 
     @PatchMapping("/{id}/ativar")
-    ResponseEntity<Void> ativar(@PathVariable Integer id);
+    @Operation(summary = "Ativar plano", description = "Reativa um plano desativado.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Plano ativado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "404", description = "Plano não encontrado")
+    })
+    ResponseEntity<Void> ativar(
+            @Parameter(description = "ID do plano", example = "1")
+            @PathVariable Integer id);
 
     @PatchMapping("/{id}/desativar")
-    ResponseEntity<Void> desativar(@PathVariable Integer id);
+    @Operation(summary = "Desativar plano", description = "Desativa um plano por soft delete.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Plano desativado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "404", description = "Plano não encontrado")
+    })
+    ResponseEntity<Void> desativar(
+            @Parameter(description = "ID do plano", example = "1")
+            @PathVariable Integer id);
 }
