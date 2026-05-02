@@ -1,9 +1,5 @@
 package repz.app.controller.impl;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,15 +20,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "Academias", description = "Gerenciar academias (apenas ADMIN)")
 public class AcademiaControllerImpl implements AcademiaController {
 
     private final AcademiaService academiaService;
     private final Mensagens mensagens;
 
     @Override
-    @Operation(summary = "Criar academia", description = "Cadastrar nova academia (apenas ADMIN)")
-    @ApiResponse(responseCode = "201", description = "Academia criada com sucesso")
     public ResponseEntity<AcademiaResponse> criar(AcademiaCreateRequest dto) {
         validateAdminRole();
         AcademiaResponse response = academiaService.criar(dto);
@@ -40,8 +33,6 @@ public class AcademiaControllerImpl implements AcademiaController {
     }
 
     @Override
-    @Operation(summary = "Listar academias", description = "Listar todas as academias (apenas ADMIN)")
-    @ApiResponse(responseCode = "200", description = "Lista de academias")
     public ResponseEntity<List<AcademiaResponse>> findAll() {
         validateAdminRole();
         List<AcademiaResponse> academias = academiaService.findAll();
@@ -49,49 +40,34 @@ public class AcademiaControllerImpl implements AcademiaController {
     }
 
     @Override
-    @Operation(summary = "Obter academia", description = "Buscar academia por ID (apenas ADMIN)")
-    @ApiResponse(responseCode = "200", description = "Academia encontrada")
-    public ResponseEntity<AcademiaResponse> findById(
-            @Parameter(description = "ID da academia") Long id) {
+    public ResponseEntity<AcademiaResponse> findById(Long id) {
         validateAdminRole();
         AcademiaResponse academia = academiaService.findById(id);
         return ResponseEntity.ok(academia);
     }
 
     @Override
-    @Operation(summary = "Editar academia", description = "Atualizar dados da academia (apenas ADMIN)")
-    @ApiResponse(responseCode = "200", description = "Academia atualizada")
-    public ResponseEntity<AcademiaResponse> atualizar(
-            @Parameter(description = "ID da academia") Long id,
-            AcademiaUpdateRequest dto) {
+    public ResponseEntity<AcademiaResponse> atualizar(Long id, AcademiaUpdateRequest dto) {
         validateAdminRole();
         AcademiaResponse updated = academiaService.atualizar(id, dto);
         return ResponseEntity.ok(updated);
     }
 
     @Override
-    @Operation(summary = "Ativar academia", description = "Ativar academia")
-    @ApiResponse(responseCode = "200", description = "Academia ativada")
-    public ResponseEntity<AcademiaResponse> ativar(
-            @Parameter(description = "ID da academia") Long id) {
+    public ResponseEntity<AcademiaResponse> ativar(Long id) {
         validateAdminRole();
         AcademiaResponse activated = academiaService.ativar(id);
         return ResponseEntity.ok(activated);
     }
 
     @Override
-    @Operation(summary = "Desativar academia", description = "Desativar academia (soft delete)")
-    @ApiResponse(responseCode = "200", description = "Academia desativada")
-    public ResponseEntity<AcademiaResponse> desativar(
-            @Parameter(description = "ID da academia") Long id) {
+    public ResponseEntity<AcademiaResponse> desativar(Long id) {
         validateAdminRole();
         AcademiaResponse deactivated = academiaService.desativar(id);
         return ResponseEntity.ok(deactivated);
     }
 
     @Override
-    @Operation(summary = "Minha academia", description = "Visualizar dados da própria academia (perfil ACADEMIA)")
-    @ApiResponse(responseCode = "200", description = "Dados da academia")
     public ResponseEntity<AcademiaResponse> obterMinha() {
         User currentUser = getCurrentUser();
         validateAcademiaRole(currentUser);
@@ -100,8 +76,6 @@ public class AcademiaControllerImpl implements AcademiaController {
     }
 
     @Override
-    @Operation(summary = "Editar minha academia", description = "Atualizar dados da própria academia (perfil ACADEMIA)")
-    @ApiResponse(responseCode = "200", description = "Academia atualizada")
     public ResponseEntity<AcademiaResponse> atualizarMinha(AcademiaUpdateRequest dto) {
         User currentUser = getCurrentUser();
         validateAcademiaRole(currentUser);
@@ -110,8 +84,6 @@ public class AcademiaControllerImpl implements AcademiaController {
     }
 
     @Override
-    @Operation(summary = "Dashboard", description = "Visualizar dashboard com métricas de todas as academias (apenas ADMIN)")
-    @ApiResponse(responseCode = "200", description = "Métricas e dashboard")
     public ResponseEntity<AcademiaDashboardResponse> obterDashboard() {
         validateAdminRole();
         AcademiaDashboardResponse dashboard = academiaService.obterDashboard();

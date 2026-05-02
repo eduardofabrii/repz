@@ -1,5 +1,10 @@
 package repz.app.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,26 +21,79 @@ import repz.app.dto.response.UserGetResponse;
 
 import java.util.List;
 
+@Tag(name = "Usuários", description = "Cadastro e administração de usuários")
 @RequestMapping("/api/users")
 public interface UserController {
 
     @GetMapping
+    @Operation(summary = "Listar usuários", description = "Lista os usuários ativos cadastrados. Requer perfil ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuários encontrados"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado")
+    })
     ResponseEntity<List<UserGetResponse>> findAll();
 
     @GetMapping("/{id}")
-    ResponseEntity<UserGetResponse> findById(@PathVariable Integer id);
+    @Operation(summary = "Buscar usuário", description = "Retorna os dados de um usuário pelo ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
+    ResponseEntity<UserGetResponse> findById(
+            @Parameter(description = "ID do usuário", example = "1")
+            @PathVariable Integer id);
 
     @PostMapping
-    ResponseEntity<Void> criar(@RequestBody @Valid RegistrationDTO registrationDTO, Authentication authentication);
+    @Operation(
+            summary = "Criar usuário",
+            description = "Cria um usuário. Sem token, somente o perfil USUARIO é permitido."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Usuário criado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "403", description = "Perfil solicitado não permitido")
+    })
+    ResponseEntity<Void> criar(
+            @RequestBody @Valid RegistrationDTO registrationDTO,
+            @Parameter(hidden = true) Authentication authentication);
 
     @PutMapping("/{id}")
+    @Operation(summary = "Atualizar usuário", description = "Atualiza os dados de um usuário. Requer perfil ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
     ResponseEntity<Void> atualizar(
+            @Parameter(description = "ID do usuário", example = "1")
             @PathVariable Integer id,
             @RequestBody @Valid UserPutRequest userPutRequest);
 
     @PatchMapping("/{id}/ativar")
-    ResponseEntity<Void> ativar(@PathVariable Integer id);
+    @Operation(summary = "Ativar usuário", description = "Reativa um usuário desativado. Requer perfil ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário ativado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
+    ResponseEntity<Void> ativar(
+            @Parameter(description = "ID do usuário", example = "1")
+            @PathVariable Integer id);
 
     @PatchMapping("/{id}/desativar")
-    ResponseEntity<Void> desativar(@PathVariable Integer id);
+    @Operation(summary = "Desativar usuário", description = "Desativa um usuário por soft delete. Requer perfil ADMIN.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário desativado com sucesso"),
+            @ApiResponse(responseCode = "401", description = "Token ausente ou inválido"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
+    ResponseEntity<Void> desativar(
+            @Parameter(description = "ID do usuário", example = "1")
+            @PathVariable Integer id);
 }
