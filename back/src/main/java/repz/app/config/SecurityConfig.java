@@ -52,7 +52,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/error").permitAll()
 
-                        .requestMatchers("/health").permitAll()
+                        .requestMatchers("/health", "/actuator/health").permitAll()
 
                         .anyRequest().authenticated()
                 )
