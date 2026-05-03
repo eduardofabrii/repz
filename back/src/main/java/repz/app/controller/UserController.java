@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import repz.app.dto.response.UserGetResponse;
 import java.util.List;
 
 @Tag(name = "Usuários", description = "Cadastro e administração de usuários")
+@SecurityRequirement(name = "bearer-jwt")
 @RequestMapping("/api/users")
 public interface UserController {
 
