@@ -10,6 +10,7 @@ import repz.app.persistence.entity.Academia;
 import repz.app.persistence.entity.Personal;
 import repz.app.persistence.entity.User;
 import repz.app.persistence.entity.UserRole;
+import repz.app.message.Mensagens;
 import repz.app.persistence.repository.AcademiaRepository;
 import repz.app.persistence.repository.PersonalRepository;
 import repz.app.persistence.repository.UserRepository;
@@ -37,6 +38,9 @@ class AcademiaContextServiceUnitTest {
 
     @Mock
     private PersonalRepository personalRepository;
+
+    @Mock
+    private Mensagens mensagens;
 
     @InjectMocks
     private AcademiaContextService service;

@@ -18,6 +18,7 @@ import repz.app.persistence.repository.AcademiaRepository;
 import repz.app.persistence.repository.FrequenciaRepository;
 import repz.app.persistence.repository.PersonalRepository;
 import repz.app.persistence.repository.UserRepository;
+import repz.app.message.Mensagens;
 import repz.app.service.academia.AcademiaContextService;
 import repz.app.service.frequencia.FrequenciaServiceImpl;
 
@@ -53,6 +54,9 @@ class FrequenciaServiceUnitTest {
 
     @Mock
     private AcademiaContextService academiaContextService;
+
+    @Mock
+    private Mensagens mensagens;
 
     @InjectMocks
     private FrequenciaServiceImpl service;

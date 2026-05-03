@@ -9,6 +9,7 @@ import repz.app.dto.request.AcademiaCreateRequest;
 import repz.app.persistence.entity.Academia;
 import repz.app.persistence.entity.User;
 import repz.app.persistence.entity.UserRole;
+import repz.app.message.Mensagens;
 import repz.app.persistence.repository.AcademiaRepository;
 import repz.app.service.academia.AcademiaServiceImpl;
 
@@ -29,6 +30,9 @@ class AcademiaServiceUnitTest {
 
     @Mock
     private AcademiaRepository academiaRepository;
+
+    @Mock
+    private Mensagens mensagens;
 
     @InjectMocks
     private AcademiaServiceImpl service;
