@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,7 @@ import repz.app.dto.response.AcademiaResponse;
 import java.util.List;
 
 @Tag(name = "Academias", description = "Cadastro, consulta e gestão de academias")
+@SecurityRequirement(name = "bearer-jwt")
 @RequestMapping("/api/academias")
 public interface AcademiaController {
 

@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import repz.app.dto.auth.AuthenticationDTO;
+import repz.app.dto.auth.ForgotPasswordRequest;
 import repz.app.dto.auth.LoginResponseDTO;
+import repz.app.dto.auth.ResetPasswordRequest;
 
 @Tag(name = "Autenticação", description = "Login, logout e renovação de token")
 @RequestMapping("/api/auth")
@@ -50,4 +52,27 @@ public interface AuthController {
             @ApiResponse(responseCode = "401", description = "Refresh token inválido")
     })
     ResponseEntity<LoginResponseDTO> refresh(@RequestBody String refreshToken);
+
+    @PostMapping("/forgot-password")
+    @Operation(
+            summary = "Solicitar recuperação de senha",
+            description = "Envia um código de redefinição de senha para o e-mail informado. " +
+                          "Por segurança, sempre retorna 204 independente de o e-mail existir."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "E-mail enviado (se cadastrado)"),
+            @ApiResponse(responseCode = "400", description = "Dados inválidos")
+    })
+    ResponseEntity<Void> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request);
+
+    @PostMapping("/reset-password")
+    @Operation(
+            summary = "Redefinir senha",
+            description = "Redefine a senha do usuário usando o código recebido por e-mail."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Senha redefinida com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Código inválido ou expirado")
+    })
+    ResponseEntity<Void> resetPassword(@RequestBody @Valid ResetPasswordRequest request);
 }

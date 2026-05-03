@@ -1,14 +1,16 @@
 package repz.app.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OpenApiConfig {
+
+    public static final String SECURITY_SCHEME = "bearer-jwt";
 
     @Bean
     public OpenAPI openAPI() {
@@ -17,14 +19,13 @@ public class OpenApiConfig {
                         .title("Repz API")
                         .description("API para gestão de academias, usuários, personais, planos, check-ins e avaliações físicas.")
                         .version("1.0.0"))
-                .addSecurityItem(new SecurityRequirement().addList("bearer-jwt"))
-                .components(new io.swagger.v3.oas.models.Components()
-                        .addSecuritySchemes("bearer-jwt",
+                .components(new Components()
+                        .addSecuritySchemes(SECURITY_SCHEME,
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
                                         .bearerFormat("JWT")
-                                        .description("Insira o token JWT. Ex: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")));
+                                        .description("Token JWT obtido via `POST /api/auth/login`. Insira apenas o valor do token.")));
     }
 }
 

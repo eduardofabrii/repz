@@ -8,10 +8,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.web.bind.annotation.RestController;
 import repz.app.controller.AuthController;
 import repz.app.dto.auth.AuthenticationDTO;
+import repz.app.dto.auth.ForgotPasswordRequest;
 import repz.app.dto.auth.LoginResponseDTO;
+import repz.app.dto.auth.ResetPasswordRequest;
 import repz.app.message.Mensagens;
 import repz.app.persistence.entity.User;
 import repz.app.persistence.repository.UserRepository;
+import repz.app.service.security.PasswordResetService;
 import repz.app.service.security.TokenService;
 import repz.app.service.user.UserService;
 import org.springframework.web.server.ResponseStatusException;
@@ -26,6 +29,7 @@ public class AuthControllerImpl implements AuthController {
     private final UserService userService;
     private final TokenService tokenService;
     private final UserRepository userRepository;
+    private final PasswordResetService passwordResetService;
     private final Mensagens mensagens;
 
     @Override
@@ -60,5 +64,17 @@ public class AuthControllerImpl implements AuthController {
         var newToken = tokenService.generateToken(user);
         var newRefreshToken = tokenService.generateRefreshToken(user);
         return ResponseEntity.ok(new LoginResponseDTO(newToken, newRefreshToken));
+    }
+
+    @Override
+    public ResponseEntity<Void> forgotPassword(ForgotPasswordRequest request) {
+        passwordResetService.forgotPassword(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    public ResponseEntity<Void> resetPassword(ResetPasswordRequest request) {
+        passwordResetService.resetPassword(request);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -101,8 +101,9 @@ public class UserServiceImpl implements UserService {
             return role;
         }
 
-        if (currentRole == UserRole.PERSONAL && role == UserRole.PERSONAL) {
-            return UserRole.PERSONAL;
+        // Personal não pode criar outros usuários
+        if (currentRole == UserRole.PERSONAL && role == UserRole.USUARIO) {
+            throw new AccessDeniedException(mensagens.get("usuario.criacao.role.negada", role));
         }
 
         throw new AccessDeniedException(mensagens.get("usuario.criacao.role.negada", role));
