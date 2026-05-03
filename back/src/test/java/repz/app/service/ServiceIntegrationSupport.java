@@ -1,9 +1,11 @@
 package repz.app.service;
 
+import io.minio.MinioClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import repz.app.persistence.entity.Academia;
 import repz.app.persistence.entity.Personal;
 import repz.app.persistence.entity.User;
@@ -15,6 +17,9 @@ import repz.app.persistence.repository.UserRepository;
 import java.util.UUID;
 
 public abstract class ServiceIntegrationSupport {
+
+    @MockitoBean
+    MinioClient minioClient;
 
     @Autowired
     protected UserRepository userRepository;
