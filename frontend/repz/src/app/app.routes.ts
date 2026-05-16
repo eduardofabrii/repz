@@ -33,10 +33,26 @@ export const routes: Routes = [
     canActivate: [personalGuard]
   },
 
-  { 
-    path: 'aluno', 
+  {
+    path: 'aluno',
     loadComponent: () => import('./features/aluno/aluno').then(m => m.Aluno),
     canActivate: [alunoGuard]
+  },
+
+  {
+    path: 'aluno/ficha-treino',
+    loadComponent: () =>
+      import('./features/aluno/ficha-treino/ficha-treino').then(m => m.FichaTreino),
+    // TODO: reabilitar guard quando o fluxo de login estiver funcionando
+    // canActivate: [alunoGuard]
+  },
+
+  {
+    path: 'personal/aluno/:id/ficha-treino',
+    loadComponent: () =>
+      import('./features/aluno/ficha-treino/ficha-treino').then(m => m.FichaTreino),
+    // TODO: reabilitar guard quando o fluxo de login estiver funcionando
+    // canActivate: [personalGuard]
   },
 
   { path: '**', redirectTo: 'auth' }
