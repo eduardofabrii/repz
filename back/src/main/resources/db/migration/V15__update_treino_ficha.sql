@@ -1,4 +1,4 @@
--- Alinha as tabelas de ficha de treino com os requisitos de visualização (RF24/RF19/RF20/RF25).
+-- Alinha as tabelas de ficha de treino com as regras de visualização e histórico.
 -- Aditiva e idempotente, no mesmo estilo da V10.
 
 ALTER TABLE treino

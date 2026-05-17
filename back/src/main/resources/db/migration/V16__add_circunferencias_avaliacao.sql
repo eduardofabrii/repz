@@ -1,4 +1,4 @@
--- Circunferências estruturadas da avaliação física (RF27).
+-- Circunferências estruturadas da avaliação física.
 -- Aditiva e idempotente, no mesmo estilo da V10/V15.
 
 ALTER TABLE avaliacao_fisica
