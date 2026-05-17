@@ -43,16 +43,14 @@ export const routes: Routes = [
     path: 'aluno/ficha-treino',
     loadComponent: () =>
       import('./features/aluno/ficha-treino/ficha-treino').then(m => m.FichaTreino),
-    // TODO: reabilitar guard quando o fluxo de login estiver funcionando
-    // canActivate: [alunoGuard]
+    canActivate: [alunoGuard]
   },
 
   {
     path: 'personal/aluno/:id/ficha-treino',
     loadComponent: () =>
       import('./features/aluno/ficha-treino/ficha-treino').then(m => m.FichaTreino),
-    // TODO: reabilitar guard quando o fluxo de login estiver funcionando
-    // canActivate: [personalGuard]
+    canActivate: [personalGuard]
   },
 
   { path: '**', redirectTo: 'auth' }
