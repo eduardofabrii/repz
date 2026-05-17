@@ -55,6 +55,18 @@ public class AvaliacaoFisica {
     @Column(name = "medidas")
     private String medidas;
 
+    @Column(name = "cintura_cm")
+    private Double cinturaCm;
+
+    @Column(name = "quadril_cm")
+    private Double quadrilCm;
+
+    @Column(name = "braco_cm")
+    private Double bracoCm;
+
+    @Column(name = "coxa_cm")
+    private Double coxaCm;
+
     @Column(name = "ativo")
     private Boolean ativo = true;
 }
