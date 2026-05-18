@@ -106,12 +106,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/avaliacoes/*/ativar", "/api/avaliacoes/*/desativar")
                                 .hasAnyRole("PERSONAL", "ADMIN")
 
-                        .requestMatchers(HttpMethod.GET, "/api/treinos/me", "/api/treinos/me/historico").hasRole("USUARIO")
+                        .requestMatchers(HttpMethod.GET, "/api/treinos/me", "/api/treinos/me/historico").hasRole("ALUNO")
                         .requestMatchers(HttpMethod.POST, "/api/treinos").hasRole("PERSONAL")
                         .requestMatchers(HttpMethod.PATCH, "/api/treinos/*/ativar", "/api/treinos/*/desativar")
                                 .hasAnyRole("PERSONAL", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/treinos/**")
-                                .hasAnyRole("PERSONAL", "USUARIO", "ACADEMIA", "ADMIN")
+                                .hasAnyRole("PERSONAL", "ALUNO", "ACADEMIA", "ADMIN")
 
                         .anyRequest().authenticated()
                 )
