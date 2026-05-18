@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
-import { AuthService, AvaliacaoFisicaService, DadoGrafico } from '@core/services';
+import { AuthService, AvaliacaoFisicaService, DadoGrafico, ThemeService } from '@core/services';
 import { AppShell } from '@shared/layout';
 import type { ChartData, ChartOptions, TooltipItem } from 'chart.js';
 import { ButtonModule } from 'primeng/button';
@@ -12,7 +12,6 @@ import { ChartModule } from 'primeng/chart';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { SelectButtonModule } from 'primeng/selectbutton';
 import { TableModule } from 'primeng/table';
 import { AvaliacaoVM, formatarData, Metrica, mapearHistorico } from './avaliacao-fisica.mapper';
 
@@ -29,7 +28,6 @@ import { AvaliacaoVM, formatarData, Metrica, mapearHistorico } from './avaliacao
     InputNumberModule,
     MessageModule,
     ProgressSpinnerModule,
-    SelectButtonModule,
     TableModule,
   ],
   templateUrl: './avaliacao-fisica.html',
@@ -39,6 +37,7 @@ export class AvaliacaoFisica implements OnInit {
   private readonly service = inject(AvaliacaoFisicaService);
   private readonly auth = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
+  private readonly themeService = inject(ThemeService);
 
   private alunoId: number | null = null;
 
@@ -59,6 +58,9 @@ export class AvaliacaoFisica implements OnInit {
 
   /** Apenas PERSONAL registra; demais perfis acessam em modo leitura. */
   readonly podeRegistrar = computed(() => this.auth.getUserRole() === 'PERSONAL');
+
+  /** Avaliação mais recente (histórico já está em ordem decrescente). */
+  readonly ultimaAvaliacao = computed(() => this.historico()[0] ?? null);
 
   readonly form = {
     pesoKg: null as number | null,
@@ -87,6 +89,7 @@ export class AvaliacaoFisica implements OnInit {
 
   readonly graficoData = computed<ChartData<'line'>>(() => {
     const pontos = this.pontosValidos();
+    const dotBorder = this.themeService.tema() === 'dark' ? '#0b0d11' : '#fefefe';
     return {
       labels: pontos.map((p) => formatarData(p.data)),
       datasets: [
@@ -95,10 +98,10 @@ export class AvaliacaoFisica implements OnInit {
           borderColor: '#34d399',
           backgroundColor: 'rgba(52, 211, 153, 0.14)',
           pointBackgroundColor: '#34d399',
-          pointBorderColor: '#0b0d11',
+          pointBorderColor: dotBorder,
           pointBorderWidth: 2,
           pointHoverBackgroundColor: '#34d399',
-          pointHoverBorderColor: '#0b0d11',
+          pointHoverBorderColor: dotBorder,
           pointHoverRadius: 6,
           pointRadius: 4,
           tension: 0.35,
@@ -108,50 +111,54 @@ export class AvaliacaoFisica implements OnInit {
     };
   });
 
-  readonly graficoOptions = computed<ChartOptions<'line'>>(() => ({
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: { duration: 180 },
-    interaction: {
-      intersect: false,
-      mode: 'index',
-    },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        backgroundColor: '#12151b',
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        borderWidth: 1,
-        bodyColor: '#f3f5f7',
-        displayColors: false,
-        padding: 10,
-        titleColor: '#7c8493',
-        callbacks: {
-          label: (ctx: TooltipItem<'line'>) =>
-            `${this.rotuloMetrica()}: ${this.formatarValorTooltip(Number(ctx.parsed.y))}`,
+  readonly graficoOptions = computed<ChartOptions<'line'>>(() => {
+    const dark = this.themeService.tema() === 'dark';
+    const tickColor = dark ? '#7c8493' : '#888888';
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 180 },
+      interaction: {
+        intersect: false,
+        mode: 'index',
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: dark ? '#12151b' : '#fefefe',
+          borderColor: dark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+          borderWidth: 1,
+          bodyColor: dark ? '#f3f5f7' : '#2c2c2c',
+          displayColors: false,
+          padding: 10,
+          titleColor: tickColor,
+          callbacks: {
+            label: (ctx: TooltipItem<'line'>) =>
+              `${this.rotuloMetrica()}: ${this.formatarValorTooltip(Number(ctx.parsed.y))}`,
+          },
         },
       },
-    },
-    scales: {
-      x: {
-        border: { display: false },
-        grid: { display: false },
-        ticks: {
-          color: '#7c8493',
-          font: { size: 11 },
-          maxRotation: 0,
+      scales: {
+        x: {
+          border: { display: false },
+          grid: { display: false },
+          ticks: {
+            color: tickColor,
+            font: { size: 11 },
+            maxRotation: 0,
+          },
+        },
+        y: {
+          border: { display: false },
+          grid: { color: dark ? 'rgba(255, 255, 255, 0.06)' : 'rgba(0, 0, 0, 0.07)' },
+          ticks: {
+            color: tickColor,
+            font: { size: 11 },
+          },
         },
       },
-      y: {
-        border: { display: false },
-        grid: { color: 'rgba(255, 255, 255, 0.06)' },
-        ticks: {
-          color: '#7c8493',
-          font: { size: 11 },
-        },
-      },
-    },
-  }));
+    };
+  });
 
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
