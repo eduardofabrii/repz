@@ -1,1 +1,52 @@
-<p>auth works!</p>
+<div class="auth-wrap">
+  <p-card styleClass="auth-card repz-card">
+    <form class="auth-form" (ngSubmit)="realizarLogin()">
+      <div class="auth-brand">
+        <img class="auth-symbol" src="/assets/repz-symbol.png" alt="" aria-hidden="true" />
+        <img class="auth-wordmark" src="/assets/repz-wordmark.png" alt="REPZ" />
+      </div>
+
+      <h1 class="auth-title">Entrar</h1>
+      <p class="auth-sub">Acesse sua conta para ver sua ficha de treino.</p>
+
+      <label class="field">
+        <span>E-mail</span>
+        <input
+          pInputText
+          type="email"
+          name="email"
+          autocomplete="username"
+          [(ngModel)]="credenciais.email"
+          required
+          placeholder="voce@email.com"
+        />
+      </label>
+
+      <label class="field">
+        <span>Senha</span>
+        <input
+          pInputText
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          [(ngModel)]="credenciais.password"
+          required
+          placeholder="••••••••"
+        />
+      </label>
+
+      @if (erro()) {
+        <p-message severity="error" styleClass="auth-error" [text]="erro() ?? ''" />
+      }
+
+      <p-button
+        type="submit"
+        label="Entrar"
+        icon="pi pi-sign-in"
+        [loading]="carregando()"
+        [disabled]="carregando()"
+        styleClass="auth-submit repz-primary"
+      />
+    </form>
+  </p-card>
+</div>

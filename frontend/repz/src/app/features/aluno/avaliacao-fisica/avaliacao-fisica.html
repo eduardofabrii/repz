@@ -1,0 +1,285 @@
+<app-shell
+  ativo="evolucao"
+  [crumbs]="['Aluno', 'Evolução']"
+  [nome]="alunoNome()"
+  subtitulo="Avaliação física"
+>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Avaliação física</div>
+      <div class="page-subtitle">Acompanhe a evolução de {{ alunoNome() }} ao longo do tempo.</div>
+    </div>
+  </div>
+
+  <p-card styleClass="repz-card state-card" *ngIf="carregando()">
+    <p-progressSpinner strokeWidth="3" animationDuration=".8s" styleClass="state-spinner" />
+    <span>Carregando avaliações…</span>
+  </p-card>
+
+  <p-card styleClass="repz-card state-card state-error" *ngIf="!carregando() && erro()">
+    <i class="pi pi-exclamation-triangle"></i>
+    <span>{{ erro() }}</span>
+  </p-card>
+
+  <ng-container *ngIf="!carregando() && !erro()">
+    <div class="layout" [class.layout-full]="!podeRegistrar()">
+      <div class="col-main">
+
+        <!-- ===== Gráfico ===== -->
+        <p-card styleClass="repz-card chart-card">
+
+          <!-- Pills de métrica + data da última avaliação -->
+          <div class="card-tabs-row">
+            <div class="tab-group">
+              <button
+                *ngFor="let m of metricas"
+                class="tab-pill"
+                [class.active]="metrica() === m.value"
+                (click)="selecionarMetrica($any(m.value))"
+              >{{ m.label }}</button>
+            </div>
+            <div class="last-date" *ngIf="ultimaAvaliacao()">
+              <span class="last-date-label text-3">Última avaliação</span>
+              <strong class="last-date-val">{{ ultimaAvaliacao()!.data }}</strong>
+            </div>
+          </div>
+
+          <!-- Barra de estatísticas com os valores da última medição -->
+          <div class="stats-row" *ngIf="ultimaAvaliacao()">
+            <div class="stat-item">
+              <span class="stat-label">Peso</span>
+              <span class="stat-val">
+                {{ ultimaAvaliacao()!.peso != null ? ultimaAvaliacao()!.peso + ' kg' : '—' }}
+              </span>
+              <span
+                class="stat-delta"
+                [class.delta-up]="ultimaAvaliacao()!.deltaPeso! > 0"
+                [class.delta-down]="ultimaAvaliacao()!.deltaPeso! < 0"
+                *ngIf="ultimaAvaliacao()!.deltaPeso != null && ultimaAvaliacao()!.deltaPeso !== 0"
+              >{{ ultimaAvaliacao()!.deltaPeso! > 0 ? '+' : '' }}{{ ultimaAvaliacao()!.deltaPeso }} kg</span>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+              <span class="stat-label">IMC</span>
+              <span class="stat-val">{{ ultimaAvaliacao()!.imc ?? '—' }}</span>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+              <span class="stat-label">% Gordura</span>
+              <span class="stat-val">
+                {{ ultimaAvaliacao()!.gordura != null ? ultimaAvaliacao()!.gordura + '%' : '—' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="chart-divider"></div>
+
+          <!-- Gráfico ou estado vazio -->
+          <div class="chart-wrap">
+            <div class="chart-box" *ngIf="pontosValidos().length > 1; else semGrafico">
+              <p-chart
+                type="line"
+                [data]="graficoData()"
+                [options]="graficoOptions()"
+                styleClass="repz-chart"
+              />
+            </div>
+            <ng-template #semGrafico>
+              <div class="chart-empty text-3">
+                São necessárias ao menos 2 avaliações para comparar a evolução.
+              </div>
+            </ng-template>
+          </div>
+        </p-card>
+
+        <!-- ===== Histórico ===== -->
+        <p-card styleClass="repz-card historico">
+          <div class="hist-head">
+            <div class="font-semibold">Histórico de avaliações</div>
+            <div class="text-3 text-sm">{{ historico().length }} registro(s)</div>
+          </div>
+
+          <div class="empty-message text-3 text-sm" *ngIf="historico().length === 0">
+            Nenhuma avaliação registrada ainda.
+          </div>
+
+          <p-table
+            *ngIf="historico().length > 0"
+            [value]="historico()"
+            styleClass="repz-table"
+            [tableStyle]="{ 'min-width': '760px' }"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Data</th>
+                <th>Peso</th>
+                <th>IMC</th>
+                <th>% Gord.</th>
+                <th>Cintura</th>
+                <th>Quadril</th>
+                <th>Braço</th>
+                <th>Coxa</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-a>
+              <tr>
+                <td>
+                  <strong>{{ a.data }}</strong>
+                  <span class="hist-personal text-3" *ngIf="a.personal"> · {{ a.personal }}</span>
+                </td>
+                <td>
+                  {{ a.peso != null ? a.peso + ' kg' : '—' }}
+                  <span
+                    *ngIf="a.deltaPeso != null && a.deltaPeso !== 0"
+                    class="delta"
+                    [class.up]="a.deltaPeso > 0"
+                    [class.down]="a.deltaPeso < 0"
+                  >
+                    {{ a.deltaPeso > 0 ? '+' : '' }}{{ a.deltaPeso }}
+                  </span>
+                </td>
+                <td>{{ a.imc ?? '—' }}</td>
+                <td>{{ a.gordura != null ? a.gordura + '%' : '—' }}</td>
+                <td>{{ a.cintura != null ? a.cintura + ' cm' : '—' }}</td>
+                <td>{{ a.quadril != null ? a.quadril + ' cm' : '—' }}</td>
+                <td>{{ a.braco != null ? a.braco + ' cm' : '—' }}</td>
+                <td>{{ a.coxa != null ? a.coxa + ' cm' : '—' }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </div>
+
+      <!-- ===== Formulário (só PERSONAL) ===== -->
+      <div class="col-side" *ngIf="podeRegistrar()">
+        <form (ngSubmit)="salvar()">
+          <p-card styleClass="repz-card form-card-shell">
+            <div class="scard-label">Nova avaliação</div>
+
+            <!-- Seção: composição corporal -->
+            <div class="form-section">
+              <div class="form-section-hd">Composição corporal</div>
+              <div class="grid2">
+                <label class="field">
+                  <span>Peso (kg) *</span>
+                  <p-inputNumber
+                    inputId="peso"
+                    name="peso"
+                    [(ngModel)]="form.pesoKg"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="1"
+                    [useGrouping]="false"
+                    [allowEmpty]="true"
+                    suffix=" kg"
+                  />
+                </label>
+                <label class="field">
+                  <span>Altura (cm) *</span>
+                  <p-inputNumber
+                    inputId="altura"
+                    name="altura"
+                    [(ngModel)]="form.alturaCm"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="1"
+                    [useGrouping]="false"
+                    [allowEmpty]="true"
+                    suffix=" cm"
+                  />
+                </label>
+                <label class="field">
+                  <span>% Gordura</span>
+                  <p-inputNumber
+                    inputId="gordura"
+                    name="gordura"
+                    [(ngModel)]="form.percentualGordura"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="1"
+                    [useGrouping]="false"
+                    [allowEmpty]="true"
+                    suffix="%"
+                  />
+                </label>
+                <div class="field">
+                  <span>IMC estimado</span>
+                  <div class="imc-inline" [class.imc-filled]="imcPreview() != null">
+                    {{ imcPreview() ?? '—' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Seção: circunferências -->
+            <div class="form-section">
+              <div class="form-section-hd">Circunferências</div>
+              <div class="grid2">
+                <label class="field">
+                  <span>Cintura (cm)</span>
+                  <p-inputNumber
+                    inputId="cintura"
+                    name="cintura"
+                    [(ngModel)]="form.cinturaCm"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="1"
+                    [useGrouping]="false"
+                    [allowEmpty]="true"
+                    suffix=" cm"
+                  />
+                </label>
+                <label class="field">
+                  <span>Quadril (cm)</span>
+                  <p-inputNumber
+                    inputId="quadril"
+                    name="quadril"
+                    [(ngModel)]="form.quadrilCm"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="1"
+                    [useGrouping]="false"
+                    [allowEmpty]="true"
+                    suffix=" cm"
+                  />
+                </label>
+                <label class="field">
+                  <span>Braço (cm)</span>
+                  <p-inputNumber
+                    inputId="braco"
+                    name="braco"
+                    [(ngModel)]="form.bracoCm"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="1"
+                    [useGrouping]="false"
+                    [allowEmpty]="true"
+                    suffix=" cm"
+                  />
+                </label>
+                <label class="field">
+                  <span>Coxa (cm)</span>
+                  <p-inputNumber
+                    inputId="coxa"
+                    name="coxa"
+                    [(ngModel)]="form.coxaCm"
+                    [minFractionDigits]="1"
+                    [maxFractionDigits]="1"
+                    [useGrouping]="false"
+                    [allowEmpty]="true"
+                    suffix=" cm"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <p-message severity="info" styleClass="aviso" [text]="aviso() ?? ''" *ngIf="aviso()" />
+
+            <p-button
+              type="submit"
+              label="Registrar avaliação"
+              icon="pi pi-save"
+              [loading]="salvando()"
+              [disabled]="salvando()"
+              styleClass="repz-primary w-full"
+            />
+          </p-card>
+        </form>
+      </div>
+    </div>
+  </ng-container>
+</app-shell>

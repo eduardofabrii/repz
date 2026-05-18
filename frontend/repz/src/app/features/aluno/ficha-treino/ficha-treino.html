@@ -1,0 +1,266 @@
+<app-shell
+  ativo="treino"
+  [crumbs]="['Aluno', 'Meu treino']"
+  [nome]="aluno()"
+  [subtitulo]="alunoObjetivo()"
+>
+  <div class="page-header">
+    <div>
+      <div class="page-title">Meu treino</div>
+      <div class="page-subtitle" *ngIf="ficha() as f">
+        Ficha criada por {{ f.personal }} · atualizada em {{ f.atualizadaEm }}
+      </div>
+    </div>
+    <p-button
+      label="Fichas anteriores"
+      icon="pi pi-history"
+      severity="secondary"
+      [outlined]="true"
+      styleClass="repz-ghost"
+      (onClick)="toggleHistorico()"
+    />
+  </div>
+
+  <p-card styleClass="repz-card state-card" *ngIf="carregando()">
+    <p-progressSpinner strokeWidth="3" animationDuration=".8s" styleClass="state-spinner" />
+    <span>Carregando sua ficha de treino…</span>
+  </p-card>
+
+  <p-card styleClass="repz-card state-card state-error" *ngIf="!carregando() && erro()">
+    <i class="pi pi-exclamation-triangle"></i>
+    <span>{{ erro() }}</span>
+  </p-card>
+
+  <p-card styleClass="repz-card state-card" *ngIf="!carregando() && !erro() && !ficha()">
+    <i class="pi pi-clipboard"></i>
+    <span>Você ainda não tem uma ficha de treino ativa.</span>
+  </p-card>
+
+  <ng-container *ngIf="!carregando() && !erro() && ficha() as f">
+    <div class="layout">
+      <p-card styleClass="repz-card list-card">
+
+        <!-- Cabeçalho com navegação de treinos -->
+        <div class="card-tabs-row">
+          <div class="tab-group">
+            <button
+              *ngFor="let l of letras()"
+              class="tab-pill"
+              [class.active]="tabAtiva() === l"
+              (click)="selecionarTab(l)"
+              type="button"
+            >
+              <span class="tab-letra">{{ l }}</span>
+              <span class="tab-foco" *ngIf="f.treinos[l]?.foco">{{ f.treinos[l]?.foco }}</span>
+            </button>
+          </div>
+          <p-tag
+            *ngIf="treinoAtual() as t"
+            styleClass="repz-tag-muted"
+            [value]="t.exercicios.length + ' exercícios'"
+          />
+        </div>
+
+        <div class="list-divider"></div>
+
+        <!-- Lista de exercícios -->
+        <div class="ex-stack" *ngIf="treinoAtual() as t">
+          <div *ngFor="let ex of t.exercicios; let idx = index" class="ex-card">
+            <div class="ex-row">
+              <div class="ex-idx">{{ (idx + 1).toString().padStart(2, '0') }}</div>
+              <div class="thumb">
+                <i class="pi pi-bolt"></i>
+              </div>
+              <div class="meta">
+                <div class="name">{{ ex.nome }}</div>
+                <div class="sets">
+                  <span class="grupo">{{ ex.grupo }}</span>
+                  · {{ ex.series }} séries × {{ ex.reps }} reps · descanso {{ ex.descanso }}
+                </div>
+              </div>
+              <div class="carga">
+                <div class="carga-val">{{ ex.carga }}</div>
+                <div class="carga-lbl">carga atual</div>
+              </div>
+            </div>
+            <div *ngIf="ex.obs" class="ex-note">
+              <i class="pi pi-info-circle"></i>
+              <span>{{ ex.obs }}</span>
+            </div>
+          </div>
+        </div>
+      </p-card>
+
+      <div class="side-stack">
+        <p-card styleClass="repz-card scard">
+          <div class="scard-top">
+            <span class="scard-label">Ficha de treino</span>
+            <p-tag styleClass="repz-tag-success" value="Ativa" *ngIf="f.ativa" />
+          </div>
+          <div class="scard-name">{{ f.nome }}</div>
+          <p class="scard-desc" *ngIf="f.objetivo">{{ f.objetivo }}</p>
+          <div class="scard-rows">
+            <div class="kv">
+              <span class="text-3">Treinos</span><span>{{ letras().length }} divisões</span>
+            </div>
+            <div class="kv">
+              <span class="text-3">Exercícios</span><span>{{ totalExercicios() }}</span>
+            </div>
+            <div class="kv">
+              <span class="text-3">Personal</span><span>{{ f.personal }}</span>
+            </div>
+          </div>
+        </p-card>
+
+        <p-card styleClass="repz-card scard" *ngIf="f.observacoes">
+          <span class="scard-label">Observações do personal</span>
+          <p class="scard-obs">{{ f.observacoes }}</p>
+        </p-card>
+
+        <p-card styleClass="repz-card scard">
+          <span class="scard-label">Validade da ficha</span>
+          <div class="scard-rows mt">
+            <div class="kv">
+              <span class="text-3">Iniciada em</span><span>{{ f.criadaEm }}</span>
+            </div>
+            <div class="kv">
+              <span class="text-3">Vence em</span><span>{{ f.validadeAte }}</span>
+            </div>
+          </div>
+
+          <ng-container *ngIf="podesolicitar()">
+            <!-- Já tem solicitação pendente -->
+            <div class="sol-status" *ngIf="solicitacaoPendente()">
+              <i class="pi pi-clock"></i>
+              <div>
+                <div class="sol-status-label">Solicitação enviada</div>
+                <div class="sol-status-data">{{ solicitacaoPendente()!.criadaEm }}</div>
+              </div>
+            </div>
+
+            <!-- Pode solicitar -->
+            <div class="sol-btn-wrap" *ngIf="!solicitacaoPendente()">
+              <p-button
+                label="Solicitar nova ficha"
+                icon="pi pi-envelope"
+                styleClass="repz-ghost w-full"
+                (onClick)="abrirDialogSolicitacao()"
+              />
+            </div>
+          </ng-container>
+        </p-card>
+      </div>
+    </div>
+  </ng-container>
+
+  <p-card styleClass="repz-card historico" *ngIf="historicoAberto()">
+    <div class="hist-head">
+      <div>
+        <div class="font-semibold">Fichas anteriores</div>
+        <div class="text-3 text-sm">{{ historico().length }} ficha(s) encerrada(s)</div>
+      </div>
+      <p-button
+        icon="pi pi-times"
+        severity="secondary"
+        [text]="true"
+        [rounded]="true"
+        styleClass="repz-icon-button"
+        (onClick)="toggleHistorico()"
+        ariaLabel="Fechar histórico"
+      />
+    </div>
+    <div class="empty-message text-3 text-sm" *ngIf="historico().length === 0">
+      Nenhuma ficha anterior registrada.
+    </div>
+    <p-table
+      *ngIf="historico().length > 0"
+      [value]="historico()"
+      styleClass="repz-table"
+      [tableStyle]="{ 'min-width': '640px' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Ficha</th>
+          <th>Objetivo</th>
+          <th>Período</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-h>
+        <tr>
+          <td>
+            <strong>{{ h.nome }}</strong>
+          </td>
+          <td class="text-2">{{ h.objetivo }}</td>
+          <td class="text-3">{{ h.criadaEm }} — {{ h.encerradaEm }}</td>
+          <td class="td-action">
+            <p-button
+              label="Ver"
+              icon="pi pi-eye"
+              size="small"
+              severity="secondary"
+              [outlined]="true"
+              styleClass="repz-ghost"
+            />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+<!-- Dialog: solicitar nova ficha -->
+<p-dialog
+  header="Solicitar nova ficha"
+  [visible]="dialogAberto()"
+  (visibleChange)="$event ? null : fecharDialog()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="repz-dialog sol-dialog"
+  [style]="{ width: '420px' }"
+>
+  <div class="sol-form">
+    <p class="sol-intro">
+      Seu personal receberá uma notificação e poderá preparar uma nova ficha para você.
+    </p>
+
+    <label class="sol-field">
+      <span>Mensagem para o personal <em>(opcional)</em></span>
+      <textarea
+        pTextarea
+        rows="4"
+        [autoResize]="false"
+        placeholder="Ex: quero foco em hipertrofia de membros inferiores…"
+        [ngModel]="mensagemSolicitacao()"
+        (ngModelChange)="mensagemSolicitacao.set($event)"
+        maxlength="500"
+        class="sol-textarea"
+      ></textarea>
+      <span class="sol-counter">{{ mensagemSolicitacao().length }}/500</span>
+    </label>
+
+    <p-message
+      *ngIf="avisoSolicitacao()"
+      severity="error"
+      styleClass="aviso"
+      [text]="avisoSolicitacao()!"
+    />
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      styleClass="repz-ghost"
+      (onClick)="fecharDialog()"
+      [disabled]="enviando()"
+    />
+    <p-button
+      label="Enviar solicitação"
+      icon="pi pi-send"
+      styleClass="repz-primary"
+      (onClick)="enviarSolicitacao()"
+      [loading]="enviando()"
+    />
+  </ng-template>
+</p-dialog>
+</app-shell>
