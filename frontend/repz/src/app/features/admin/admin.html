@@ -8,24 +8,48 @@
   <div class="page-header">
     <div>
       <div class="page-title">Administração</div>
-      <div class="page-subtitle">Painel inicial para manter a operação organizada.</div>
+      <div class="page-subtitle">Acesso rápido aos cadastros mantidos pelo perfil ADMIN.</div>
     </div>
-    <p-button label="Revisar acessos" icon="pi pi-id-card" styleClass="repz-primary" />
   </div>
 
   <div class="dash-grid">
     <p-card styleClass="repz-card dash-card">
-      <div class="dash-kicker">Perfis</div>
-      <h2>Controle de acesso</h2>
-      <p>Administre usuários e valide permissões entre aluno, personal e academia.</p>
-      <p-tag styleClass="repz-tag-success" value="Centralizado" />
+      <div class="dash-kicker">Cadastro</div>
+      <h2>Academias</h2>
+      <p>CRUD completo das academias da plataforma.</p>
+      <p-button
+        label="Abrir"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="repz-primary"
+        routerLink="/admin/academias"
+      />
     </p-card>
 
     <p-card styleClass="repz-card dash-card">
-      <div class="dash-kicker">Operação</div>
-      <h2>Dados da plataforma</h2>
-      <p>Acompanhe cadastros e pontos de integração que sustentam as telas principais.</p>
-      <p-tag styleClass="repz-tag-muted" value="Em expansão" />
+      <div class="dash-kicker">Pessoas</div>
+      <h2>Personais</h2>
+      <p>Gerencie personais de todas as academias.</p>
+      <p-button
+        label="Abrir"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="repz-primary"
+        routerLink="/admin/personais"
+      />
+    </p-card>
+
+    <p-card styleClass="repz-card dash-card">
+      <div class="dash-kicker">Pessoas</div>
+      <h2>Alunos</h2>
+      <p>Gerencie matrículas de alunos em qualquer academia.</p>
+      <p-button
+        label="Abrir"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="repz-primary"
+        routerLink="/admin/alunos"
+      />
     </p-card>
   </div>
 </app-shell>

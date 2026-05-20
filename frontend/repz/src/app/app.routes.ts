@@ -12,51 +12,72 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/auth').then((m) => m.Auth),
   },
 
+  // -------- ADMIN --------
   {
     path: 'admin',
     loadComponent: () => import('./features/admin/admin').then((m) => m.Admin),
     canActivate: [adminGuard],
   },
+  {
+    path: 'admin/academias',
+    loadComponent: () =>
+      import('./features/admin/academias/academias').then((m) => m.Academias),
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/personais',
+    loadComponent: () =>
+      import('./features/personais/personais').then((m) => m.Personais),
+    canActivate: [adminGuard],
+  },
+  {
+    path: 'admin/alunos',
+    loadComponent: () => import('./features/alunos/alunos').then((m) => m.Alunos),
+    canActivate: [adminGuard],
+  },
 
+  // -------- ACADEMIA (GERENTE) --------
   {
     path: 'academia',
     loadComponent: () => import('./features/academia/academia').then((m) => m.Academia),
     canActivate: [academiaGuard],
   },
+  {
+    path: 'academia/planos',
+    loadComponent: () =>
+      import('./features/academia/planos/planos').then((m) => m.Planos),
+    canActivate: [academiaGuard],
+  },
+  {
+    path: 'academia/personais',
+    loadComponent: () =>
+      import('./features/personais/personais').then((m) => m.Personais),
+    canActivate: [academiaGuard],
+  },
+  {
+    path: 'academia/alunos',
+    loadComponent: () => import('./features/alunos/alunos').then((m) => m.Alunos),
+    canActivate: [academiaGuard],
+  },
+  {
+    path: 'academia/aluno/:id/avaliacoes',
+    loadComponent: () =>
+      import('./features/aluno/avaliacao-fisica/avaliacao-fisica').then((m) => m.AvaliacaoFisica),
+    canActivate: [academiaGuard],
+  },
 
+  // -------- PERSONAL --------
   {
     path: 'personal',
     loadComponent: () => import('./features/personal/personal').then((m) => m.Personal),
     canActivate: [personalGuard],
   },
-
-  {
-    path: 'aluno',
-    loadComponent: () => import('./features/aluno/aluno').then((m) => m.Aluno),
-    canActivate: [alunoGuard],
-  },
-
-  {
-    path: 'aluno/ficha-treino',
-    loadComponent: () =>
-      import('./features/aluno/ficha-treino/ficha-treino').then((m) => m.FichaTreino),
-    canActivate: [alunoGuard],
-  },
-
   {
     path: 'personal/aluno/:id/ficha-treino',
     loadComponent: () =>
       import('./features/aluno/ficha-treino/ficha-treino').then((m) => m.FichaTreino),
     canActivate: [personalGuard],
   },
-
-  {
-    path: 'aluno/evolucao',
-    loadComponent: () =>
-      import('./features/aluno/avaliacao-fisica/avaliacao-fisica').then((m) => m.AvaliacaoFisica),
-    canActivate: [alunoGuard],
-  },
-
   {
     path: 'personal/aluno/:id/avaliacoes',
     loadComponent: () =>
@@ -64,11 +85,34 @@ export const routes: Routes = [
     canActivate: [personalGuard],
   },
 
+  // -------- ALUNO --------
   {
-    path: 'academia/aluno/:id/avaliacoes',
+    path: 'aluno',
+    loadComponent: () => import('./features/aluno/aluno').then((m) => m.Aluno),
+    canActivate: [alunoGuard],
+  },
+  {
+    path: 'aluno/ficha-treino',
+    loadComponent: () =>
+      import('./features/aluno/ficha-treino/ficha-treino').then((m) => m.FichaTreino),
+    canActivate: [alunoGuard],
+  },
+  {
+    path: 'aluno/evolucao',
     loadComponent: () =>
       import('./features/aluno/avaliacao-fisica/avaliacao-fisica').then((m) => m.AvaliacaoFisica),
-    canActivate: [academiaGuard],
+    canActivate: [alunoGuard],
+  },
+  {
+    path: 'aluno/frequencia',
+    loadComponent: () =>
+      import('./features/aluno/frequencia/frequencia').then((m) => m.Frequencia),
+    canActivate: [alunoGuard],
+  },
+  {
+    path: 'aluno/perfil',
+    loadComponent: () => import('./features/aluno/perfil/perfil').then((m) => m.Perfil),
+    canActivate: [alunoGuard],
   },
 
   { path: '**', redirectTo: 'auth' },

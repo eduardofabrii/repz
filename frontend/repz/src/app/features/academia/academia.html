@@ -2,32 +2,54 @@
   ativo="dashboard"
   [crumbs]="['Academia', 'Dashboard']"
   nome="Academia"
-  subtitulo="Gestão operacional"
+  subtitulo="Gestão"
   [mostrarCta]="false"
 >
   <div class="page-header">
     <div>
-      <div class="page-title">Dashboard da academia</div>
-      <div class="page-subtitle">
-        Base para acompanhar alunos, personais e avaliações da unidade.
-      </div>
+      <div class="page-title">Minha academia</div>
+      <div class="page-subtitle">Acesso rápido às operações da sua academia.</div>
     </div>
-    <p-button label="Gerenciar alunos" icon="pi pi-users" styleClass="repz-primary" />
   </div>
 
   <div class="dash-grid">
     <p-card styleClass="repz-card dash-card">
-      <div class="dash-kicker">Alunos</div>
-      <h2>Carteira ativa</h2>
-      <p>Organize a relação de alunos e acompanhe os vínculos com personais.</p>
-      <p-tag styleClass="repz-tag-muted" value="Preparado" />
+      <div class="dash-kicker">Catálogo</div>
+      <h2>Planos</h2>
+      <p>Crie, edite e inative os planos oferecidos.</p>
+      <p-button
+        label="Abrir"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="repz-primary"
+        routerLink="/academia/planos"
+      />
     </p-card>
 
     <p-card styleClass="repz-card dash-card">
-      <div class="dash-kicker">Saúde</div>
-      <h2>Avaliações físicas</h2>
-      <p>Consulte históricos de avaliação dos alunos quando o perfil tiver permissão.</p>
-      <p-tag styleClass="repz-tag-success" value="Consulta segura" />
+      <div class="dash-kicker">Pessoas</div>
+      <h2>Personais</h2>
+      <p>Gerencie o time de personais da sua academia.</p>
+      <p-button
+        label="Abrir"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="repz-primary"
+        routerLink="/academia/personais"
+      />
+    </p-card>
+
+    <p-card styleClass="repz-card dash-card">
+      <div class="dash-kicker">Pessoas</div>
+      <h2>Alunos</h2>
+      <p>Cadastre matrículas, vincule planos e personais.</p>
+      <p-button
+        label="Abrir"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        styleClass="repz-primary"
+        routerLink="/academia/alunos"
+      />
     </p-card>
   </div>
 </app-shell>

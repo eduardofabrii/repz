@@ -19,3 +19,17 @@ export type {
   AvaliacaoGraficoResponse,
   DadoGrafico,
 } from './avaliacao-fisica';
+export { AcademiaService } from './academia';
+export type {
+  AcademiaResponse,
+  AcademiaRequest,
+  AcademiaDashboardResponse,
+} from './academia';
+export { PlanoService } from './plano';
+export type { PlanoResponse, PlanoRequest } from './plano';
+export { PersonalService } from './personal';
+export type { PersonalResponse, PersonalUpdateRequest } from './personal';
+export { AlunoService } from './aluno';
+export type { AlunoDetalheResponse, AlunoUpdateRequest } from './aluno';
+export { UserService } from './user';
+export type { UserRole, UserCreateRequest, UserPutRequest, UserGetResponse } from './user';

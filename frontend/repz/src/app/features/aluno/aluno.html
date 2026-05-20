@@ -7,10 +7,10 @@
   <div class="page-header">
     <div>
       <div class="page-title">Dashboard</div>
-      <div class="page-subtitle">Resumo rápido para continuar o treino sem perder contexto.</div>
+      <div class="page-subtitle">Atalhos para tudo que você precisa do dia a dia.</div>
     </div>
     <p-button
-      label="Ver treino"
+      label="Ir para o treino"
       icon="pi pi-list-check"
       routerLink="/aluno/ficha-treino"
       styleClass="repz-primary"
@@ -19,10 +19,30 @@
 
   <div class="dash-grid">
     <p-card styleClass="repz-card dash-card">
-      <div class="dash-kicker">Próximo passo</div>
-      <h2>Ficha de treino</h2>
+      <div class="dash-kicker">Hoje</div>
+      <h2>Meu treino</h2>
       <p>Consulte divisões, exercícios, cargas e observações cadastradas pelo personal.</p>
-      <p-tag styleClass="repz-tag-success" value="Ativa" />
+      <p-button
+        label="Abrir treino"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        routerLink="/aluno/ficha-treino"
+        styleClass="repz-primary"
+      />
+    </p-card>
+
+    <p-card styleClass="repz-card dash-card">
+      <div class="dash-kicker">Esta semana</div>
+      <h2>Frequência</h2>
+      <p>Veja seus check-ins e a sequência atual de dias treinados.</p>
+      <p-button
+        label="Ver frequência"
+        icon="pi pi-calendar"
+        routerLink="/aluno/frequencia"
+        severity="secondary"
+        [outlined]="true"
+        styleClass="repz-ghost"
+      />
     </p-card>
 
     <p-card styleClass="repz-card dash-card">
@@ -33,6 +53,20 @@
         label="Abrir evolução"
         icon="pi pi-chart-line"
         routerLink="/aluno/evolucao"
+        severity="secondary"
+        [outlined]="true"
+        styleClass="repz-ghost"
+      />
+    </p-card>
+
+    <p-card styleClass="repz-card dash-card">
+      <div class="dash-kicker">Conta</div>
+      <h2>Meu perfil</h2>
+      <p>Veja seus dados, plano vigente e personal vinculado.</p>
+      <p-button
+        label="Abrir perfil"
+        icon="pi pi-user"
+        routerLink="/aluno/perfil"
         severity="secondary"
         [outlined]="true"
         styleClass="repz-ghost"
