@@ -33,17 +33,19 @@ export type {
 export { AlunoService } from './aluno';
 export type { AlunoDetalheResponse, AlunoMeUpdateRequest, AlunoUpdateRequest } from './aluno';
 export { PlanoService } from './plano';
-export type { PlanoResponse, PlanoPostRequest, PlanoPutRequest } from './plano';
+export type { PlanoResponse, PlanoRequest, PlanoPostRequest, PlanoPutRequest } from './plano';
 export { PersonalService } from './personal';
 export type {
   PersonalResponse,
   PersonalUpdateRequest,
+  PersonalSelfUpdateRequest,
   PersonalAlunosResponse,
   AlunoResumo,
 } from './personal';
 export { AcademiaService } from './academia';
 export type {
   AcademiaResponse,
+  AcademiaRequest,
   AcademiaDashboardResponse,
   AcademiaUpdateRequest,
 } from './academia';

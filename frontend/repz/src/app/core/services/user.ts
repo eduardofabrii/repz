@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { environment } from '@env/environment';
 
 export type UserRole = 'ADMIN' | 'GERENTE' | 'PERSONAL' | 'ALUNO';
@@ -11,7 +11,6 @@ export interface UserCreateRequest {
   password: string;
   role: UserRole;
   academiaId: number;
-  /** Obrigatório quando role = ALUNO; ignorado para PERSONAL/GERENTE. */
   planoId?: number;
 }
 
@@ -20,6 +19,12 @@ export interface UserPutRequest {
   email: string;
   role?: UserRole;
   active?: boolean;
+}
+
+export interface UserSelfUpdateRequest {
+  name: string;
+  email: string;
+  senha?: string;
 }
 
 export interface UserGetResponse {
@@ -31,15 +36,14 @@ export interface UserGetResponse {
   active: boolean;
 }
 
-/**
- * Cadastro de PERSONAL e ALUNO acontece pelo endpoint genérico /api/users
- * (a role é definida no payload). Por isso este service é usado pelas
- * telas de criação dos features de Personal e Aluno.
- */
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/users`;
+
+  private readonly _nomeUsuario = signal<string>('');
+  readonly nomeUsuario = computed(() => this._nomeUsuario());
+  private nomeCarregado = false;
 
   criar(req: UserCreateRequest): Observable<void> {
     return this.http.post<void>(this.base, req);
@@ -59,5 +63,30 @@ export class UserService {
 
   desativar(id: number): Observable<void> {
     return this.http.patch<void>(`${this.base}/${id}/desativar`, {});
+  }
+
+  meuPerfil(): Observable<UserGetResponse> {
+    return this.http.get<UserGetResponse>(`${this.base}/me`).pipe(
+      tap((u) => {
+        this._nomeUsuario.set(u.name ?? '');
+        this.nomeCarregado = true;
+      }),
+    );
+  }
+
+  atualizarMeuPerfil(req: UserSelfUpdateRequest): Observable<UserGetResponse> {
+    return this.http.put<UserGetResponse>(`${this.base}/me`, req).pipe(
+      tap((u) => this._nomeUsuario.set(u?.name ?? req.name)),
+    );
+  }
+
+  carregarNomeLogado(): void {
+    if (this.nomeCarregado) return;
+    this.nomeCarregado = true;
+    this.meuPerfil().subscribe({
+      error: () => {
+        this.nomeCarregado = false;
+      },
+    });
   }
 }

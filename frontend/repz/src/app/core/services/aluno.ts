@@ -26,6 +26,12 @@ export interface AlunoUpdateRequest {
   objetivo?: string;
 }
 
+export interface AlunoMeUpdateRequest {
+  telefone?: string;
+  objetivo?: string;
+  fotoUrl?: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AlunoService {
   private readonly http = inject(HttpClient);
@@ -55,5 +61,13 @@ export class AlunoService {
 
   inativar(id: number, academiaId?: number | null): Observable<void> {
     return this.http.patch<void>(`${this.base}/${id}/inativar`, {}, this.headers(academiaId));
+  }
+
+  meuPerfil(): Observable<AlunoDetalheResponse> {
+    return this.http.get<AlunoDetalheResponse>(`${this.base}/me`);
+  }
+
+  atualizarMeuPerfil(req: AlunoMeUpdateRequest): Observable<AlunoDetalheResponse> {
+    return this.http.put<AlunoDetalheResponse>(`${this.base}/me`, req);
   }
 }

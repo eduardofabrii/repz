@@ -50,7 +50,7 @@ const FORM_VAZIO = (): AcademiaForm => ({
   templateUrl: './academias.html',
   styleUrl: './academias.scss',
 })
-export class Academias implements OnInit {
+export class AdminAcademias implements OnInit {
   private readonly service = inject(AcademiaService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly toast = inject(MessageService);

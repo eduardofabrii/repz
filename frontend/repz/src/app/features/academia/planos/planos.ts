@@ -48,7 +48,7 @@ const FORM_VAZIO = (): PlanoForm => ({ nome: '', duracaoDias: null, valor: null 
   templateUrl: './planos.html',
   styleUrl: './planos.scss',
 })
-export class Planos implements OnInit {
+export class AcademiaPlanos implements OnInit {
   private readonly service = inject(PlanoService);
   private readonly confirmation = inject(ConfirmationService);
   private readonly toast = inject(MessageService);

@@ -17,6 +17,9 @@ export interface PlanoRequest {
   valor: number;
 }
 
+export type PlanoPostRequest = PlanoRequest;
+export type PlanoPutRequest = PlanoRequest;
+
 @Injectable({ providedIn: 'root' })
 export class PlanoService {
   private readonly http = inject(HttpClient);

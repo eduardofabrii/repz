@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { computed, inject, Injectable, signal } from '@angular/core';
+import { Observable, tap } from 'rxjs';
 import { environment } from '@env/environment';
 
 export interface PersonalResponse {
@@ -19,10 +19,31 @@ export interface PersonalUpdateRequest {
   ativo?: boolean;
 }
 
+export interface PersonalSelfUpdateRequest {
+  especialidade: string;
+}
+
+export interface AlunoResumo {
+  alunoId: number;
+  nome: string;
+  email: string;
+  ativo: boolean;
+}
+
+export interface PersonalAlunosResponse {
+  personalId: number;
+  personalNome: string;
+  alunos: AlunoResumo[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class PersonalService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/personais`;
+
+  private readonly _nomePersonal = signal<string>('');
+  readonly nomePersonal = computed(() => this._nomePersonal());
+  private nomeCarregado = false;
 
   private headers(academiaId?: number | null): { headers?: HttpHeaders } {
     return academiaId
@@ -60,5 +81,26 @@ export class PersonalService {
       {},
       this.headers(academiaId),
     );
+  }
+
+  meuPerfil(): Observable<PersonalResponse> {
+    return this.http.get<PersonalResponse>(`${this.base}/me`).pipe(
+      tap((p) => {
+        this._nomePersonal.set(p?.userName ?? '');
+        this.nomeCarregado = true;
+      }),
+    );
+  }
+
+  atualizarMeuPerfil(req: PersonalSelfUpdateRequest): Observable<PersonalResponse> {
+    return this.http.put<PersonalResponse>(`${this.base}/me`, req).pipe(
+      tap((p) => {
+        if (p?.userName) this._nomePersonal.set(p.userName);
+      }),
+    );
+  }
+
+  meusAlunos(): Observable<PersonalAlunosResponse> {
+    return this.http.get<PersonalAlunosResponse>(`${this.base}/me/alunos`);
   }
 }

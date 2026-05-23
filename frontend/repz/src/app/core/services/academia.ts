@@ -27,6 +27,8 @@ export interface AcademiaRequest {
   phone?: string;
 }
 
+export type AcademiaUpdateRequest = AcademiaRequest;
+
 export interface AcademiaDashboardResponse {
   totalAcademies: number;
   totalStudents: number;
@@ -72,6 +74,10 @@ export class AcademiaService {
 
   atualizarMinha(req: AcademiaRequest): Observable<AcademiaResponse> {
     return this.http.put<AcademiaResponse>(`${this.base}/me`, req);
+  }
+
+  atualizarMinhaAcademia(req: AcademiaUpdateRequest): Observable<AcademiaResponse> {
+    return this.atualizarMinha(req);
   }
 
   dashboard(): Observable<AcademiaDashboardResponse> {
