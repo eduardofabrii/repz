@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
@@ -5,9 +6,10 @@ import { AcademiaService } from '@core/services/academia';
 import { AlunoService } from '@core/services/aluno';
 import { AuthService } from '@core/services/auth';
 import { LayoutService } from '@core/services/layout';
-import { PersonalService } from '@core/services/personal';
+import { UserService } from '@core/services/user';
 import { ButtonModule } from 'primeng/button';
 import { TranslatePipe } from '@ngx-translate/core';
+import { PersonalService } from '@core/services';
 
 export interface NavItem {
   key: string;
@@ -55,7 +57,7 @@ const PERFIL_LINK_BY_ROLE: Record<string, string> = {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, ButtonModule, TranslatePipe],
+  imports: [RouterLink, ButtonModule, TranslatePipe, CommonModule],
   templateUrl: './app-sidebar.html',
   styleUrl: './app-sidebar.scss',
   host: { '[class.is-collapsed]': 'layout.colapsada()' },
@@ -69,6 +71,7 @@ export class AppSidebar implements OnInit {
   private readonly alunoService = inject(AlunoService);
 
   readonly _academiaNomeCarregado = signal<string>('');
+  protected readonly userService = inject(UserService);
 
   readonly nome = input<string>('Usuário');
 
