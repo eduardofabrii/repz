@@ -65,10 +65,9 @@ export class FrequenciaService {
 
   registrar(req: FrequenciaCreateRequest): Observable<FrequenciaResponse> {
     return this.http.post<FrequenciaResponse>(this.base, req).pipe(
-      tap((novo) => {
-        if (!novo.dataHora || novo.dataHora.startsWith(hojeBR())) {
-          this._jaFezCheckinHoje.set(true);
-        }
+      tap(() => {
+        // Se o POST foi bem-sucedido, o check-in é de hoje — marca imediatamente
+        this._jaFezCheckinHoje.set(true);
       }),
     );
   }
