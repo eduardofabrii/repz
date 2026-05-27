@@ -173,6 +173,16 @@
           Você não pode alterar o próprio perfil.
         </div>
       </div>
+      <div class="form-group" *ngIf="precisaAcademia()">
+        <label class="form-label">Academia</label>
+        <select class="form-select" [(ngModel)]="formAcademiaId">
+          <option [ngValue]="null">Sem academia</option>
+          <option *ngFor="let a of academias()" [ngValue]="a.id">{{ a.name }}</option>
+        </select>
+        <div class="form-hint">
+          Vincula o usuário a uma academia específica.
+        </div>
+      </div>
     </div>
 
     <ng-template pTemplate="footer">
