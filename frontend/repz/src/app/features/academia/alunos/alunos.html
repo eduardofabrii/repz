@@ -95,24 +95,20 @@
                 [value]="a.ativo ? 'Ativo' : 'Inativo'"
               />
             </td>
-            <td class="td-action">
-              <p-button
-                icon="pi pi-pencil"
-                label="Editar"
-                size="small"
-                styleClass="repz-ghost"
-                (onClick)="abrirEdicao(a)"
-              />
-              <p-button
-                *ngIf="a.ativo"
-                label="Inativar"
-                icon="pi pi-ban"
-                size="small"
-                styleClass="repz-ghost"
-                [loading]="alterandoId() === a.id"
-                [disabled]="alterandoId() !== null && alterandoId() !== a.id"
-                (onClick)="inativar(a)"
-              />
+            <td>
+              <div class="actions-cell">
+                <p-button icon="pi pi-pencil" text rounded severity="secondary" (onClick)="abrirEdicao(a)" />
+                <p-button
+                  *ngIf="a.ativo"
+                  icon="pi pi-ban"
+                  text
+                  rounded
+                  severity="danger"
+                  [loading]="alterandoId() === a.id"
+                  [disabled]="alterandoId() !== null && alterandoId() !== a.id"
+                  (onClick)="inativar(a)"
+                />
+              </div>
             </td>
           </tr>
         </ng-template>
