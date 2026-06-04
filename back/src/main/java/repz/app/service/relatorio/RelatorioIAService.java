@@ -102,30 +102,34 @@ public class RelatorioIAService {
 
     @Async("relatorioExecutor")
     public void gerarAsync(Long relatorioId, Long alunoId, String alunoNome) {
+        log.info("Iniciando geração do relatório {} para aluno {}", relatorioId, alunoId);
         try {
             List<AvaliacaoFisica> avaliacoes =
                     avaliacaoRepository.findByAluno_IdOrderByDataAvaliacaoAsc(alunoId);
+            log.info("Relatório {}: {} avaliações físicas encontradas", relatorioId, avaliacoes.size());
 
-            // Verifica se foi cancelado antes de chamar a IA
             RelatorioIA relatorio = relatorioRepository.findById(relatorioId).orElse(null);
             if (relatorio == null || relatorio.getStatus() == RelatorioStatus.CANCELADO) {
+                log.info("Relatório {} cancelado ou não encontrado, abortando geração", relatorioId);
                 return;
             }
 
             String prompt = buildPrompt(alunoNome, avaliacoes);
+            log.info("Relatório {}: enviando prompt ao AI service ({} chars)", relatorioId, prompt.length());
             String conteudo = aiServiceClient.gerarRelatorio(prompt);
+            log.info("Relatório {}: conteúdo recebido ({} chars)", relatorioId, conteudo != null ? conteudo.length() : 0);
 
-            // Verifica novamente após o retorno (pode ter sido cancelado durante a chamada)
             relatorio = relatorioRepository.findById(relatorioId).orElse(null);
             if (relatorio != null && relatorio.getStatus() == RelatorioStatus.PENDENTE) {
                 relatorio.setStatus(RelatorioStatus.CONCLUIDO);
                 relatorio.setConteudo(conteudo);
                 relatorio.setAtualizadoEm(LocalDateTime.now());
                 relatorioRepository.save(relatorio);
+                log.info("Relatório {} salvo com status CONCLUIDO", relatorioId);
             }
 
         } catch (Exception e) {
-            log.error("Erro ao gerar relatório {}: {}", relatorioId, e.getMessage());
+            log.error("Erro ao gerar relatório {}: {}", relatorioId, e.getMessage(), e);
             relatorioRepository.findById(relatorioId).ifPresent(r -> {
                 if (r.getStatus() == RelatorioStatus.PENDENTE) {
                     r.setStatus(RelatorioStatus.ERRO);
