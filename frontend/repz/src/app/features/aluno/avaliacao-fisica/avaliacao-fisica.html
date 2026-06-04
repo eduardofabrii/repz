@@ -376,7 +376,7 @@
         </div>
 
         <ng-container *ngIf="!editando(); else modoEdicao">
-          <pre class="relatorio-texto">{{ r.conteudo }}</pre>
+          <div class="relatorio-texto" [innerHTML]="markdownParaHtml(r.conteudo)"></div>
           <div class="rel-detalhe-actions">
             <p-button
               label="Editar"

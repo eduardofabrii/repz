@@ -106,6 +106,8 @@ export class AppSidebar implements OnInit {
   readonly inicial = computed(() => (this.nome().trim()[0] ?? 'U').toUpperCase());
 
   ngOnInit(): void {
+    this.userService.carregarNomeLogado();
+
     const role = this.auth.getUserRole();
     if (role === 'GERENTE') {
       this.academiaService

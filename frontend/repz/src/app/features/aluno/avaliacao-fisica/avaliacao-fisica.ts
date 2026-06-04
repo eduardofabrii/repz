@@ -1,6 +1,8 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { marked } from 'marked';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, interval, Subscription } from 'rxjs';
 import { switchMap, takeWhile } from 'rxjs/operators';
@@ -52,6 +54,7 @@ export class AvaliacaoFisica implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly themeService = inject(ThemeService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   private alunoId: number | null = null;
 
@@ -472,6 +475,11 @@ export class AvaliacaoFisica implements OnInit, OnDestroy {
   private pararPolling(): void {
     this.pollSub?.unsubscribe();
     this.pollSub = null;
+  }
+
+  markdownParaHtml(texto: string | undefined): SafeHtml {
+    const html = marked.parse(texto ?? '', { async: false }) as string;
+    return this.sanitizer.bypassSecurityTrustHtml(html);
   }
 
   ngOnDestroy(): void {
