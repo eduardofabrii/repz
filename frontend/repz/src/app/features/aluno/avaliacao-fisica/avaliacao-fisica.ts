@@ -12,6 +12,7 @@ import {
   ThemeService,
 } from '@core/services';
 import { AppShell } from '@shared/layout';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import type { ChartData, ChartOptions, TooltipItem } from 'chart.js';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -28,6 +29,7 @@ import { AvaliacaoVM, formatarData, Metrica, mapearHistorico } from './avaliacao
     CommonModule,
     FormsModule,
     AppShell,
+    TranslatePipe,
     ButtonModule,
     CardModule,
     ChartModule,
@@ -46,6 +48,7 @@ export class AvaliacaoFisica implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly themeService = inject(ThemeService);
+  private readonly i18n = inject(TranslateService);
 
   private alunoId: number | null = null;
 
@@ -59,9 +62,9 @@ export class AvaliacaoFisica implements OnInit {
   readonly metrica = signal<Metrica>('peso');
   readonly alunoNome = signal('Aluno');
   readonly metricas = [
-    { label: 'Peso', value: 'peso' satisfies Metrica },
-    { label: 'IMC', value: 'imc' satisfies Metrica },
-    { label: '% Gordura', value: 'gordura' satisfies Metrica },
+    { labelKey: 'ALUNO.AVAL.WEIGHT', value: 'peso' satisfies Metrica },
+    { labelKey: 'ALUNO.AVAL.IMC', value: 'imc' satisfies Metrica },
+    { labelKey: 'ALUNO.AVAL.BODY_FAT', value: 'gordura' satisfies Metrica },
   ];
 
   readonly podeRegistrar = computed(() => this.auth.getUserRole() === 'PERSONAL');
@@ -78,8 +81,12 @@ export class AvaliacaoFisica implements OnInit {
 
   readonly crumbs = computed<string[]>(() =>
     this.auth.getUserRole() === 'PERSONAL'
-      ? ['Personal', 'Meus alunos', 'Avaliações']
-      : ['Aluno', 'Evolução'],
+      ? [
+          this.i18n.instant('ROLES.TRAINER'),
+          this.i18n.instant('NAV.MY_STUDENTS'),
+          this.i18n.instant('NAV.ASSESSMENTS'),
+        ]
+      : [this.i18n.instant('ROLES.STUDENT'), this.i18n.instant('NAV.EVOLUTION')],
   );
 
   readonly mostrarCheckin = computed(
@@ -229,7 +236,7 @@ export class AvaliacaoFisica implements OnInit {
 
     if (!this.alunoId) {
       this.carregando.set(false);
-      this.erro.set('Não foi possível identificar o aluno.');
+      this.erro.set(this.i18n.instant('ALUNO.AVAL.ID_ERROR'));
       return;
     }
     this.carregar();
@@ -248,9 +255,9 @@ export class AvaliacaoFisica implements OnInit {
 
   private rotuloMetrica(): string {
     const m = this.metrica();
-    if (m === 'peso') return 'Peso';
-    if (m === 'imc') return 'IMC';
-    return '% Gordura';
+    if (m === 'peso') return this.i18n.instant('ALUNO.AVAL.WEIGHT');
+    if (m === 'imc') return this.i18n.instant('ALUNO.AVAL.IMC');
+    return this.i18n.instant('ALUNO.AVAL.BODY_FAT');
   }
 
   private valorMetrica(d: DadoGrafico): number | undefined {
@@ -263,7 +270,7 @@ export class AvaliacaoFisica implements OnInit {
   salvar(): void {
     if (this.salvando() || !this.alunoId) return;
     if (!this.form.pesoKg || !this.form.alturaCm) {
-      this.aviso.set('Peso e altura são obrigatórios.');
+      this.aviso.set(this.i18n.instant('ALUNO.AVAL.WEIGHT_HEIGHT_REQUIRED'));
       return;
     }
     this.aviso.set(null);
@@ -283,13 +290,13 @@ export class AvaliacaoFisica implements OnInit {
       .subscribe({
         next: () => {
           this.salvando.set(false);
-          this.aviso.set('Avaliação registrada com sucesso.');
+          this.aviso.set(this.i18n.instant('ALUNO.AVAL.SAVE_SUCCESS'));
           this.resetForm();
           this.carregar();
         },
         error: () => {
           this.salvando.set(false);
-          this.aviso.set('Não foi possível registrar a avaliação.');
+          this.aviso.set(this.i18n.instant('ALUNO.AVAL.SAVE_ERROR'));
         },
       });
   }
@@ -312,8 +319,8 @@ export class AvaliacaoFisica implements OnInit {
         this.carregando.set(false);
         this.erro.set(
           err?.status === 401 || err?.status === 403
-            ? 'Você não tem acesso a estas avaliações.'
-            : 'Não foi possível carregar as avaliações.',
+            ? this.i18n.instant('ALUNO.AVAL.NO_ACCESS')
+            : this.i18n.instant('ALUNO.AVAL.LOAD_ERROR'),
         );
       },
     });
