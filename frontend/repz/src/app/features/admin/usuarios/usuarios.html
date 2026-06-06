@@ -139,6 +139,8 @@
     </p-card>
   </ng-container>
 
+  <p-confirmDialog />
+
   <p-dialog
     [header]="'ADMIN.USERS.EDIT_USER' | translate"
     [visible]="editando() !== null"
@@ -152,12 +154,13 @@
     <div class="edit-form" *ngIf="editando()">
       <div class="form-group">
         <label class="form-label">{{ 'PROFILE.NAME' | translate }}</label>
-        <input pInputText [(ngModel)]="formNome" class="w-full" [placeholder]="'ADMIN.USERS.FULL_NAME' | translate" />
+        <input pInputText required [(ngModel)]="formNome" class="w-full" [placeholder]="'ADMIN.USERS.FULL_NAME' | translate" />
       </div>
       <div class="form-group">
         <label class="form-label">{{ 'PROFILE.EMAIL' | translate }}</label>
         <input
           pInputText
+          required
           type="email"
           [(ngModel)]="formEmail"
           class="w-full"

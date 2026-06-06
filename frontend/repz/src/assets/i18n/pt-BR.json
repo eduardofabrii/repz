@@ -212,6 +212,12 @@
       "UPDATE_ERROR": "Erro ao atualizar usuário.",
       "USER_ACTIVATED": "Usuário \"{{nome}}\" ativado.",
       "USER_DEACTIVATED": "Usuário \"{{nome}}\" desativado.",
+      "DEACTIVATE_CONFIRM_HEADER": "Inativar usuário",
+      "DEACTIVATE_CONFIRM_MSG": "Tem certeza que deseja inativar o usuário \"{{nome}}\"?",
+      "ACTIVATE_CONFIRM_HEADER": "Ativar usuário",
+      "ACTIVATE_CONFIRM_MSG": "Tem certeza que deseja ativar o usuário \"{{nome}}\"?",
+      "DEACTIVATE": "Inativar",
+      "ACTIVATE": "Ativar",
       "STATUS_ERROR": "Erro ao alterar status do usuário."
     },
     "GYMS": {
@@ -297,7 +303,10 @@
       "ENROLL_UPDATE_ERROR": "Erro ao atualizar a matrícula.",
       "STUDENT_UPDATE_ERROR": "Erro ao atualizar os dados do aluno.",
       "ENROLL_DEACTIVATED": "Matrícula de \"{{nome}}\" inativada.",
-      "DEACTIVATE_ERROR": "Erro ao inativar a matrícula."
+      "DEACTIVATE_ERROR": "Erro ao inativar a matrícula.",
+      "DEACTIVATE_CONFIRM_HEADER": "Inativar matrícula",
+      "DEACTIVATE_CONFIRM_MSG": "Tem certeza que deseja inativar a matrícula de \"{{nome}}\"?",
+      "DEACTIVATE": "Inativar"
     },
     "TRAINERS": {
       "N_LINKED": "{{n}} personal(is) vinculado(s) à academia",
@@ -319,7 +328,13 @@
       "UPDATE_ERROR": "Erro ao atualizar o personal.",
       "TRAINER_ACTIVATED": "Personal \"{{nome}}\" ativado.",
       "TRAINER_DEACTIVATED": "Personal \"{{nome}}\" desativado.",
-      "STATUS_ERROR": "Erro ao alterar status."
+      "STATUS_ERROR": "Erro ao alterar status.",
+      "DEACTIVATE_CONFIRM_HEADER": "Inativar personal",
+      "DEACTIVATE_CONFIRM_MSG": "Tem certeza que deseja inativar o personal \"{{nome}}\"?",
+      "ACTIVATE_CONFIRM_HEADER": "Ativar personal",
+      "ACTIVATE_CONFIRM_MSG": "Tem certeza que deseja ativar o personal \"{{nome}}\"?",
+      "DEACTIVATE": "Inativar",
+      "ACTIVATE": "Ativar"
     },
     "PLANS": {
       "SUBTITLE": "Cadastre, edite e inative os planos da academia.",

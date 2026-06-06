@@ -14,8 +14,10 @@ import type {
 } from '@core/services';
 import { AppShell } from '@shared/layout';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -33,6 +35,7 @@ import { TagModule } from 'primeng/tag';
     TranslatePipe,
     ButtonModule,
     CardModule,
+    ConfirmDialogModule,
     DialogModule,
     InputTextModule,
     MessageModule,
@@ -40,6 +43,7 @@ import { TagModule } from 'primeng/tag';
     TableModule,
     TagModule,
   ],
+  providers: [ConfirmationService],
   templateUrl: './personais.html',
   styleUrl: './personais.scss',
 })
@@ -47,6 +51,7 @@ export class AcademiaPersonais implements OnInit {
   protected readonly userService = inject(UserService);
   private readonly personalService = inject(PersonalService);
   private readonly academiaService = inject(AcademiaService);
+  private readonly confirmation = inject(ConfirmationService);
   private readonly i18n = inject(TranslateService);
   private readonly academia = signal<AcademiaResponse | null>(null);
 
@@ -245,6 +250,30 @@ export class AcademiaPersonais implements OnInit {
 
   alternarStatus(p: PersonalResponse): void {
     if (this.alterandoId() !== null) return;
+    if (p.ativo) {
+      this.confirmation.confirm({
+        header: this.i18n.instant('ACADEMIA.TRAINERS.DEACTIVATE_CONFIRM_HEADER'),
+        message: this.i18n.instant('ACADEMIA.TRAINERS.DEACTIVATE_CONFIRM_MSG', { nome: p.userName }),
+        acceptLabel: this.i18n.instant('ACADEMIA.TRAINERS.DEACTIVATE'),
+        rejectLabel: this.i18n.instant('COMMON.CANCEL'),
+        acceptButtonStyleClass: 'p-button-danger',
+        rejectButtonStyleClass: 'p-button-text',
+        accept: () => this.executarAlternarStatus(p),
+      });
+    } else {
+      this.confirmation.confirm({
+        header: this.i18n.instant('ACADEMIA.TRAINERS.ACTIVATE_CONFIRM_HEADER'),
+        message: this.i18n.instant('ACADEMIA.TRAINERS.ACTIVATE_CONFIRM_MSG', { nome: p.userName }),
+        acceptLabel: this.i18n.instant('ACADEMIA.TRAINERS.ACTIVATE'),
+        rejectLabel: this.i18n.instant('COMMON.CANCEL'),
+        acceptButtonStyleClass: 'p-button-success',
+        rejectButtonStyleClass: 'p-button-text',
+        accept: () => this.executarAlternarStatus(p),
+      });
+    }
+  }
+
+  private executarAlternarStatus(p: PersonalResponse): void {
     this.alterandoId.set(p.id);
     this.aviso.set(null);
 

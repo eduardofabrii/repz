@@ -212,7 +212,13 @@
       "UPDATE_ERROR": "Error updating user.",
       "USER_ACTIVATED": "User \"{{nome}}\" activated.",
       "USER_DEACTIVATED": "User \"{{nome}}\" deactivated.",
-      "STATUS_ERROR": "Error changing user status."
+      "STATUS_ERROR": "Error changing user status.",
+      "DEACTIVATE_CONFIRM_HEADER": "Deactivate user",
+      "DEACTIVATE_CONFIRM_MSG": "Are you sure you want to deactivate the user \"{{nome}}\"?",
+      "ACTIVATE_CONFIRM_HEADER": "Activate user",
+      "ACTIVATE_CONFIRM_MSG": "Are you sure you want to activate the user \"{{nome}}\"?",
+      "DEACTIVATE": "Deactivate",
+      "ACTIVATE": "Activate"
     },
     "GYMS": {
       "SUBTITLE": "Manage the gyms registered on the platform.",
@@ -297,7 +303,10 @@
       "ENROLL_UPDATE_ERROR": "Error updating the enrollment.",
       "STUDENT_UPDATE_ERROR": "Error updating the student's data.",
       "ENROLL_DEACTIVATED": "\"{{nome}}\"'s enrollment deactivated.",
-      "DEACTIVATE_ERROR": "Error deactivating the enrollment."
+      "DEACTIVATE_ERROR": "Error deactivating the enrollment.",
+      "DEACTIVATE_CONFIRM_HEADER": "Deactivate enrollment",
+      "DEACTIVATE_CONFIRM_MSG": "Are you sure you want to deactivate \"{{nome}}\"'s enrollment?",
+      "DEACTIVATE": "Deactivate"
     },
     "TRAINERS": {
       "N_LINKED": "{{n}} trainer(s) linked to the gym",
@@ -319,7 +328,13 @@
       "UPDATE_ERROR": "Error updating the trainer.",
       "TRAINER_ACTIVATED": "Trainer \"{{nome}}\" activated.",
       "TRAINER_DEACTIVATED": "Trainer \"{{nome}}\" deactivated.",
-      "STATUS_ERROR": "Error changing status."
+      "STATUS_ERROR": "Error changing status.",
+      "DEACTIVATE_CONFIRM_HEADER": "Deactivate trainer",
+      "DEACTIVATE_CONFIRM_MSG": "Are you sure you want to deactivate the trainer \"{{nome}}\"?",
+      "ACTIVATE_CONFIRM_HEADER": "Activate trainer",
+      "ACTIVATE_CONFIRM_MSG": "Are you sure you want to activate the trainer \"{{nome}}\"?",
+      "DEACTIVATE": "Deactivate",
+      "ACTIVATE": "Activate"
     },
     "PLANS": {
       "SUBTITLE": "Create, edit and deactivate the gym's plans.",

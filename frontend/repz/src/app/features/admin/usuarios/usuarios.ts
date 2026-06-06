@@ -5,8 +5,10 @@ import { AcademiaService, AuthService, UserService } from '@core/services';
 import type { AcademiaResponse, UserGetResponse, UserPutRequest, UserRole } from '@core/services';
 import { AppShell } from '@shared/layout';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -26,6 +28,7 @@ type FiltroRole = 'TODOS' | UserRole;
     TranslatePipe,
     ButtonModule,
     CardModule,
+    ConfirmDialogModule,
     DialogModule,
     InputTextModule,
     MessageModule,
@@ -33,6 +36,7 @@ type FiltroRole = 'TODOS' | UserRole;
     TableModule,
     TagModule,
   ],
+  providers: [ConfirmationService],
   templateUrl: './usuarios.html',
   styleUrl: './usuarios.scss',
 })
@@ -40,6 +44,7 @@ export class AdminUsuarios implements OnInit {
   protected readonly userService = inject(UserService);
   private readonly auth = inject(AuthService);
   private readonly academiaService = inject(AcademiaService);
+  private readonly confirmation = inject(ConfirmationService);
   private readonly i18n = inject(TranslateService);
 
   readonly academias = signal<AcademiaResponse[]>([]);
@@ -203,6 +208,18 @@ export class AdminUsuarios implements OnInit {
 
   alternarStatus(u: UserGetResponse): void {
     if (this.alterandoId() !== null || this.ehProprioUsuario(u)) return;
+    this.confirmation.confirm({
+      header: this.i18n.instant(u.active ? 'ADMIN.USERS.DEACTIVATE_CONFIRM_HEADER' : 'ADMIN.USERS.ACTIVATE_CONFIRM_HEADER'),
+      message: this.i18n.instant(u.active ? 'ADMIN.USERS.DEACTIVATE_CONFIRM_MSG' : 'ADMIN.USERS.ACTIVATE_CONFIRM_MSG', { nome: u.name }),
+      acceptLabel: this.i18n.instant(u.active ? 'ADMIN.USERS.DEACTIVATE' : 'ADMIN.USERS.ACTIVATE'),
+      rejectLabel: this.i18n.instant('COMMON.CANCEL'),
+      acceptButtonStyleClass: u.active ? 'p-button-danger' : 'p-button-success',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => this.executarAlternarStatus(u),
+    });
+  }
+
+  private executarAlternarStatus(u: UserGetResponse): void {
     this.alterandoId.set(u.id);
     this.aviso.set(null);
 

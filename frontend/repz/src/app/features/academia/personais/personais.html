@@ -116,6 +116,8 @@
     </p-card>
   </ng-container>
 
+  <p-confirmDialog />
+
   <p-dialog
     [header]="'ACADEMIA.TRAINERS.EDIT_TRAINER' | translate"
     [visible]="editando() !== null"
@@ -131,6 +133,7 @@
         <label class="form-label">{{ 'ADMIN.GYMS.NAME_REQ' | translate }}</label>
         <input
           pInputText
+          required
           [(ngModel)]="formNome"
           class="w-full"
           [placeholder]="'ADMIN.USERS.FULL_NAME' | translate"
@@ -140,6 +143,7 @@
         <label class="form-label">{{ 'ACADEMIA.STUDENTS.EMAIL_REQ' | translate }}</label>
         <input
           pInputText
+          required
           type="email"
           [(ngModel)]="formEmail"
           class="w-full"
@@ -190,6 +194,7 @@
           <label class="form-label">{{ 'ACADEMIA.STUDENTS.FULL_NAME_REQ' | translate }}</label>
           <input
             pInputText
+            required
             [(ngModel)]="cadNome"
             [placeholder]="'ACADEMIA.DASH.NAME_PLACEHOLDER_EX' | translate"
             class="w-full"
@@ -199,6 +204,7 @@
           <label class="form-label">{{ 'ACADEMIA.STUDENTS.EMAIL_REQ' | translate }}</label>
           <input
             pInputText
+            required
             type="email"
             [(ngModel)]="cadEmail"
             [placeholder]="'ACADEMIA.DASH.EMAIL_PLACEHOLDER_EX' | translate"

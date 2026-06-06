@@ -121,6 +121,8 @@
     </p-card>
   </ng-container>
 
+  <p-confirmDialog />
+
   <p-dialog
     [header]="'ACADEMIA.STUDENTS.EDIT_ENROLLMENT' | translate"
     [visible]="editando() !== null"
@@ -135,11 +137,11 @@
       <div class="form-row-2">
         <div class="form-group">
           <label class="form-label">{{ 'ADMIN.GYMS.NAME_REQ' | translate }}</label>
-          <input pInputText [(ngModel)]="formNome" class="w-full" [placeholder]="'ADMIN.USERS.FULL_NAME' | translate" />
+          <input pInputText required [(ngModel)]="formNome" class="w-full" [placeholder]="'ADMIN.USERS.FULL_NAME' | translate" />
         </div>
         <div class="form-group">
           <label class="form-label">{{ 'ACADEMIA.STUDENTS.EMAIL_REQ' | translate }}</label>
-          <input pInputText type="email" [(ngModel)]="formEmail" class="w-full" [placeholder]="'PROFILE.EMAIL_PLACEHOLDER' | translate" />
+          <input pInputText required type="email" [(ngModel)]="formEmail" class="w-full" [placeholder]="'PROFILE.EMAIL_PLACEHOLDER' | translate" />
         </div>
       </div>
 
@@ -202,6 +204,7 @@
         <label class="form-label">{{ 'ACADEMIA.STUDENTS.FULL_NAME_REQ' | translate }}</label>
         <input
           pInputText
+          required
           [(ngModel)]="cadNome"
           [placeholder]="'ACADEMIA.DASH.NAME_PLACEHOLDER_EX' | translate"
           class="w-full"
@@ -212,6 +215,7 @@
         <label class="form-label">{{ 'ACADEMIA.STUDENTS.EMAIL_REQ' | translate }}</label>
         <input
           pInputText
+          required
           type="email"
           [(ngModel)]="cadEmail"
           [placeholder]="'ACADEMIA.DASH.EMAIL_PLACEHOLDER_EX' | translate"

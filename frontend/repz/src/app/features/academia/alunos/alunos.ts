@@ -20,8 +20,10 @@ import type {
 } from '@core/services';
 import { AppShell } from '@shared/layout';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
@@ -39,6 +41,7 @@ import { TagModule } from 'primeng/tag';
     TranslatePipe,
     ButtonModule,
     CardModule,
+    ConfirmDialogModule,
     DialogModule,
     InputTextModule,
     MessageModule,
@@ -46,6 +49,7 @@ import { TagModule } from 'primeng/tag';
     TableModule,
     TagModule,
   ],
+  providers: [ConfirmationService],
   templateUrl: './alunos.html',
   styleUrl: './alunos.scss',
 })
@@ -55,6 +59,7 @@ export class AcademiaAlunos implements OnInit {
   private readonly personalService = inject(PersonalService);
   private readonly planoService = inject(PlanoService);
   private readonly academiaService = inject(AcademiaService);
+  private readonly confirmation = inject(ConfirmationService);
   private readonly i18n = inject(TranslateService);
   private readonly academia = signal<AcademiaResponse | null>(null);
 
@@ -265,6 +270,18 @@ export class AcademiaAlunos implements OnInit {
 
   inativar(a: AlunoDetalheResponse): void {
     if (this.alterandoId() !== null) return;
+    this.confirmation.confirm({
+      header: this.i18n.instant('ACADEMIA.STUDENTS.DEACTIVATE_CONFIRM_HEADER'),
+      message: this.i18n.instant('ACADEMIA.STUDENTS.DEACTIVATE_CONFIRM_MSG', { nome: a.nome }),
+      acceptLabel: this.i18n.instant('ACADEMIA.STUDENTS.DEACTIVATE'),
+      rejectLabel: this.i18n.instant('COMMON.CANCEL'),
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text',
+      accept: () => this.executarInativar(a),
+    });
+  }
+
+  private executarInativar(a: AlunoDetalheResponse): void {
     this.alterandoId.set(a.id);
     this.aviso.set(null);
 
