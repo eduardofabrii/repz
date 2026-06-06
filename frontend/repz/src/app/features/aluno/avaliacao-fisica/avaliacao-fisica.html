@@ -495,7 +495,7 @@
             </div>
           </div>
           <div class="rel-preview text-3" *ngIf="r.status === 'CONCLUIDO' && r.conteudo">
-            {{ r.conteudo | slice:0:160 }}{{ (r.conteudo?.length ?? 0) > 160 ? '…' : '' }}
+            {{ r.conteudo | slice:0:160 }}{{ r.conteudo.length > 160 ? '…' : '' }}
           </div>
           <div class="rel-erro-msg" *ngIf="r.status === 'ERRO'">
             <i class="pi pi-exclamation-triangle"></i>
