@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting, HttpTestingController } from '@angular/common/http/testing';
@@ -30,6 +30,7 @@ describe('Academia', () => {
       imports: [Academia],
       providers: [provideRouter([]), provideTranslateService(), provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
+    vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
 
     userService = TestBed.inject(UserService);
     academiaService = TestBed.inject(AcademiaService);
