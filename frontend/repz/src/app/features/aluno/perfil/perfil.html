@@ -1,7 +1,7 @@
 <app-shell
   ativo="perfil"
   [crumbs]="[('ROLES.STUDENT' | translate), ('PROFILE.TITLE' | translate)]"
-  [nome]="aluno()?.nome ?? 'Aluno'"
+  [nome]="userService.nomeUsuario()"
   [subtitulo]="'ALUNO.AREA' | translate"
   [mostrarCta]="false"
 >

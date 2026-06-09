@@ -1,7 +1,7 @@
 <app-shell
   ativo="frequencia"
   [crumbs]="[('ROLES.STUDENT' | translate), ('ALUNO.FREQ.TITLE' | translate)]"
-  [nome]="nomeAluno()"
+  [nome]="userService.nomeUsuario()"
   [subtitulo]="'ALUNO.AREA' | translate"
   [mostrarCta]="!freqService.jaFezCheckinHoje()"
   (ctaClick)="fazerCheckin()"

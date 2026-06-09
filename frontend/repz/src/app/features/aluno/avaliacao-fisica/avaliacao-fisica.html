@@ -1,7 +1,7 @@
 <app-shell
   [ativo]="ativoNav()"
   [crumbs]="crumbs()"
-  [nome]="nomeSidebar()"
+  [nome]="userService.nomeUsuario()"
   [subtitulo]="'ALUNO.AREA' | translate"
   [mostrarCta]="mostrarCheckin()"
   (ctaClick)="irParaCheckin()"

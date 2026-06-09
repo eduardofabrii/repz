@@ -1,7 +1,7 @@
 <app-shell
   ativo="treino"
   [crumbs]="[('ROLES.STUDENT' | translate), ('NAV.MY_WORKOUT' | translate)]"
-  [nome]="aluno()"
+  [nome]="userService.nomeUsuario()"
   [subtitulo]="alunoObjetivo()"
   [mostrarCta]="!freq.jaFezCheckinHoje()"
   (ctaClick)="irParaCheckin()"

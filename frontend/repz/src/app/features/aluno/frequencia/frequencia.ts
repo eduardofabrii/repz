@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { AlunoService, FrequenciaResponse, FrequenciaService } from '@core/services';
+import { UserService } from '@core/services/user';
 import { LanguageService } from '@core/services/language.service';
 import { AppShell } from '@shared/layout';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -47,9 +48,13 @@ interface DiaCalendario {
 })
 export class Frequencia implements OnInit {
   protected readonly freqService = inject(FrequenciaService);
+  protected readonly userService = inject(UserService);
   private readonly alunoService = inject(AlunoService);
+  protected readonly userService = inject(UserService);
   private readonly i18n = inject(TranslateService);
+  protected readonly userService = inject(UserService);
   private readonly language = inject(LanguageService);
+  protected readonly userService = inject(UserService);
 
   readonly carregando = signal(true);
   readonly fazendoCheckin = signal(false);

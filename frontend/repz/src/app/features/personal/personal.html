@@ -1,7 +1,7 @@
 <app-shell
   ativo="dashboard"
   [crumbs]="[('PERSONAL.AREA' | translate), ('NAV.PANEL' | translate)]"
-  [nome]="nomePersonal()"
+  [nome]="userService.nomeUsuario()"
   [subtitulo]="'PERSONAL.AREA' | translate"
   [mostrarCta]="false"
 >

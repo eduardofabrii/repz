@@ -1,7 +1,7 @@
 <app-shell
   ativo="dashboard"
   [crumbs]="[('ROLES.STUDENT' | translate), ('NAV.DASHBOARD' | translate)]"
-  [nome]="nome()"
+  [nome]="userService.nomeUsuario()"
   [subtitulo]="'ALUNO.AREA' | translate"
   [mostrarCta]="!freq.jaFezCheckinHoje()"
   (ctaClick)="fazerCheckin()"

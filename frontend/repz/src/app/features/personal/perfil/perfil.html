@@ -1,7 +1,7 @@
 <app-shell
   ativo="perfil"
   [crumbs]="[('ROLES.TRAINER' | translate), ('PROFILE.TITLE' | translate)]"
-  [nome]="perfil()?.userName ?? 'Personal'"
+  [nome]="userService.nomeUsuario()"
   [subtitulo]="'PERSONAL.AREA' | translate"
   [mostrarCta]="false"
 >
