@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.repz.com.br',
+  apiUrl: 'https://repz-5shx.onrender.com',
 };
