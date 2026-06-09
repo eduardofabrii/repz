@@ -1,5 +1,6 @@
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '@env/environment';
 
@@ -38,16 +39,18 @@ export interface UserGetResponse {
   fotoUrl?: string;
 }
 
+const USER_NAME_KEY = 'USER_NAME';
+const USER_FOTO_KEY = 'USER_FOTO';
+
 @Injectable({ providedIn: 'root' })
 export class UserService {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/api/users`;
+  private readonly platformId = inject(PLATFORM_ID);
 
-  
-
-  private readonly _nomeUsuario = signal<string>('');
+  private readonly _nomeUsuario = signal<string>(this.lerStorage(USER_NAME_KEY) ?? '');
   readonly nomeUsuario = computed(() => this._nomeUsuario());
-  private readonly _fotoUrl = signal<string | null>(null);
+  private readonly _fotoUrl = signal<string | null>(this.lerStorage(USER_FOTO_KEY));
   readonly fotoUrl = computed(() => this._fotoUrl());
   private nomeCarregado = false;
 
@@ -74,8 +77,8 @@ export class UserService {
   meuPerfil(): Observable<UserGetResponse> {
     return this.http.get<UserGetResponse>(`${this.base}/me`).pipe(
       tap((u) => {
-        this._nomeUsuario.set(u.name ?? '');
-        this._fotoUrl.set(u.fotoUrl ?? null);
+        this.salvarNome(u.name ?? '');
+        this.salvarFoto(u.fotoUrl ?? null);
         this.nomeCarregado = true;
       }),
     );
@@ -83,7 +86,7 @@ export class UserService {
 
   atualizarMeuPerfil(req: UserSelfUpdateRequest): Observable<UserGetResponse> {
     return this.http.put<UserGetResponse>(`${this.base}/me`, req).pipe(
-      tap((u) => this._nomeUsuario.set(u?.name ?? req.name)),
+      tap((u) => this.salvarNome(u?.name ?? req.name)),
     );
   }
 
@@ -92,8 +95,8 @@ export class UserService {
     form.append('foto', file);
     return this.http.post<UserGetResponse>(`${this.base}/me/foto`, form).pipe(
       tap((u) => {
-        this._nomeUsuario.set(u?.name ?? '');
-        this._fotoUrl.set(u?.fotoUrl ?? null);
+        this.salvarNome(u?.name ?? '');
+        this.salvarFoto(u?.fotoUrl ?? null);
       }),
     );
   }
@@ -109,12 +112,39 @@ export class UserService {
   }
 
   setFotoUrl(url: string | null): void {
-    this._fotoUrl.set(url);
+    this.salvarFoto(url);
   }
 
   resetar(): void {
     this._nomeUsuario.set('');
     this._fotoUrl.set(null);
     this.nomeCarregado = false;
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem(USER_NAME_KEY);
+      localStorage.removeItem(USER_FOTO_KEY);
+    }
+  }
+
+  private salvarNome(nome: string): void {
+    this._nomeUsuario.set(nome);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(USER_NAME_KEY, nome);
+    }
+  }
+
+  private salvarFoto(url: string | null): void {
+    this._fotoUrl.set(url);
+    if (isPlatformBrowser(this.platformId)) {
+      if (url) localStorage.setItem(USER_FOTO_KEY, url);
+      else localStorage.removeItem(USER_FOTO_KEY);
+    }
+  }
+
+  private lerStorage(key: string): string | null {
+    try {
+      return isPlatformBrowser(this.platformId) ? localStorage.getItem(key) : null;
+    } catch {
+      return null;
+    }
   }
 }
