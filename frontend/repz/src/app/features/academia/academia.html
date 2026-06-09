@@ -233,7 +233,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">{{ 'ADMIN.GYMS.CNPJ_REQ' | translate }}</label>
-          <input pInputText [(ngModel)]="formCnpj" class="w-full" />
+          <input pInputText cnpjMask [(ngModel)]="formCnpj" maxlength="18" placeholder="00.000.000/0000-00" class="w-full" />
         </div>
       </div>
       <div class="form-group">
@@ -251,7 +251,7 @@
         </div>
         <div class="form-group">
           <label class="form-label">{{ 'PROFILE.PHONE' | translate }}</label>
-          <input pInputText [(ngModel)]="formTelefone" class="w-full" />
+          <input pInputText phoneMask [(ngModel)]="formTelefone" maxlength="15" placeholder="(00) 00000-0000" class="w-full" />
         </div>
       </div>
     </div>

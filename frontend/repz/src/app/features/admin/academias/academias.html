@@ -67,7 +67,7 @@
             <strong>{{ a.name }}</strong>
             <div class="text-3 text-sm">{{ a.address }}</div>
           </td>
-          <td>{{ a.cnpj }}</td>
+          <td>{{ formatCnpj(a.cnpj) }}</td>
           <td>{{ a.responsible }}</td>
           <td>
             <div>{{ a.email || '—' }}</div>
@@ -76,8 +76,8 @@
           <td>{{ a.totalStudents ?? 0 }}</td>
           <td>
             <p-tag
+              [styleClass]="a.active ? 'repz-tag-success' : 'repz-tag-muted'"
               [value]="(a.active ? 'COMMON.ACTIVE_F' : 'COMMON.INACTIVE_F') | translate"
-              [severity]="a.active ? 'success' : 'danger'"
             />
           </td>
           <td>
@@ -125,11 +125,12 @@
           <span>{{ 'ADMIN.GYMS.CNPJ_REQ' | translate }}</span>
           <input
             pInputText
+            cnpjMask
             name="cnpj"
             [(ngModel)]="form().cnpj"
             required
-            maxlength="14"
-            [placeholder]="'ADMIN.GYMS.CNPJ_PLACEHOLDER' | translate"
+            maxlength="18"
+            placeholder="00.000.000/0000-00"
           />
         </label>
         <label class="field">
@@ -150,7 +151,7 @@
         </label>
         <label class="field">
           <span>{{ 'PROFILE.PHONE' | translate }}</span>
-          <input pInputText name="phone" [(ngModel)]="form().phone" maxlength="20" />
+          <input pInputText phoneMask name="phone" [(ngModel)]="form().phone" maxlength="15" placeholder="(00) 00000-0000" />
         </label>
       </div>
 

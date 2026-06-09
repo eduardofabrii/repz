@@ -66,6 +66,9 @@ export class FichaTreino implements OnInit {
   readonly carregando = signal(true);
   readonly erro = signal<string | null>(null);
 
+  readonly fichaHistoricoSelecionada = signal<HistoricoVM | null>(null);
+  readonly dialogHistoricoAberto = signal(false);
+
   readonly dialogAberto = signal(false);
   readonly mensagemSolicitacao = signal('');
   readonly enviando = signal(false);
@@ -132,6 +135,15 @@ export class FichaTreino implements OnInit {
 
   toggleHistorico(): void {
     this.historicoAberto.update((v) => !v);
+  }
+
+  verFichaHistorico(h: HistoricoVM): void {
+    this.fichaHistoricoSelecionada.set(h);
+    this.dialogHistoricoAberto.set(true);
+  }
+
+  fecharDialogHistorico(): void {
+    this.dialogHistoricoAberto.set(false);
   }
 
   abrirDialogSolicitacao(): void {

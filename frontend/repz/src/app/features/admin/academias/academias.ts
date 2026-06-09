@@ -2,7 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { AcademiaRequest, AcademiaResponse, AcademiaService, UserService } from '@core/services';
-import { validarCNPJ } from '@core/validators/cpf-cnpj';
+import { formatarCNPJ, formatarTelefone, validarCNPJ } from '@core/validators/cpf-cnpj';
+import { CnpjMaskDirective } from '@core/validators/cnpj-mask.directive';
+import { PhoneMaskDirective } from '@core/validators/phone-mask.directive';
 import { AppShell } from '@shared/layout';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
@@ -48,6 +50,8 @@ const FORM_VAZIO = (): AcademiaForm => ({
     TableModule,
     TagModule,
     ToastModule,
+    CnpjMaskDirective,
+    PhoneMaskDirective,
   ],
   providers: [ConfirmationService, MessageService],
   templateUrl: './academias.html',
@@ -96,15 +100,20 @@ export class AdminAcademias implements OnInit {
     this.dialogAberto.set(true);
   }
 
+  /** Formato visual de CNPJ para exibição na tabela */
+  protected formatCnpj(valor: string): string {
+    return formatarCNPJ(valor);
+  }
+
   editar(a: AcademiaResponse): void {
     this.form.set({
       id: a.id,
-      cnpj: a.cnpj,
+      cnpj: formatarCNPJ(a.cnpj),
       name: a.name,
       address: a.address,
       responsible: a.responsible,
       email: a.email ?? '',
-      phone: a.phone ?? '',
+      phone: formatarTelefone(a.phone ?? ''),
     });
     this.editando.set(true);
     this.erroForm.set(null);
@@ -127,6 +136,10 @@ export class AdminAcademias implements OnInit {
     const cnpjLimpo = f.cnpj.replace(/\D/g, '');
     if (!validarCNPJ(cnpjLimpo)) {
       this.erroForm.set(this.i18n.instant('ADMIN.GYMS.CNPJ_INVALID'));
+      return;
+    }
+    if (f.email && !f.email.includes('@')) {
+      this.erroForm.set(this.i18n.instant('AUTH.EMAIL_INVALID'));
       return;
     }
     this.erroForm.set(null);

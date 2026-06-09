@@ -200,6 +200,7 @@
               severity="secondary"
               [outlined]="true"
               styleClass="repz-ghost"
+              (onClick)="verFichaHistorico(h)"
             />
           </td>
         </tr>
@@ -260,6 +261,50 @@
       (onClick)="enviarSolicitacao()"
       [loading]="enviando()"
     />
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  [header]="fichaHistoricoSelecionada()?.nome ?? ''"
+  [visible]="dialogHistoricoAberto()"
+  (visibleChange)="$event ? null : fecharDialogHistorico()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="repz-dialog"
+  [style]="{ width: '560px' }"
+>
+  <ng-container *ngIf="fichaHistoricoSelecionada() as h">
+    <div class="hist-meta">
+      <span class="text-3 text-sm">{{ h.objetivo }}</span>
+      <span class="text-3 text-sm">{{ h.criadaEm }} — {{ h.encerradaEm }}</span>
+    </div>
+    <p class="text-3 text-sm" style="text-align:center;padding:24px 0" *ngIf="h.exercicios.length === 0">
+      Sem exercícios registrados.
+    </p>
+    <p-table *ngIf="h.exercicios.length > 0" [value]="h.exercicios" styleClass="repz-table" [scrollable]="true">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Exercício</th>
+          <th>Grupo</th>
+          <th>Séries</th>
+          <th>Reps</th>
+          <th>Carga</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-e>
+        <tr>
+          <td>{{ e.nome }}</td>
+          <td class="text-3">{{ e.grupo }}</td>
+          <td>{{ e.series }}</td>
+          <td>{{ e.reps }}</td>
+          <td>{{ e.carga }}</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </ng-container>
+  <ng-template pTemplate="footer">
+    <p-button [label]="'COMMON.CLOSE' | translate" severity="secondary" styleClass="repz-ghost" (onClick)="fecharDialogHistorico()" />
   </ng-template>
 </p-dialog>
 </app-shell>

@@ -61,8 +61,8 @@
           <td>R$ {{ p.valor | number: '1.2-2' }}</td>
           <td>
             <p-tag
+              [styleClass]="p.ativo ? 'repz-tag-success' : 'repz-tag-muted'"
               [value]="(p.ativo ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate"
-              [severity]="p.ativo ? 'success' : 'danger'"
             />
           </td>
           <td>

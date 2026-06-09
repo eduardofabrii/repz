@@ -2,6 +2,9 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { formatarCNPJ, formatarTelefone, validarCNPJ } from '@core/validators/cpf-cnpj';
+import { CnpjMaskDirective } from '@core/validators/cnpj-mask.directive';
+import { PhoneMaskDirective } from '@core/validators/phone-mask.directive';
 import { catchError, forkJoin, of } from 'rxjs';
 import {
   AcademiaService,
@@ -53,6 +56,8 @@ function senhaTemporaria(): string {
     ProgressSpinnerModule,
     TableModule,
     TagModule,
+    CnpjMaskDirective,
+    PhoneMaskDirective,
   ],
   templateUrl: './academia.html',
   styleUrl: './academia.scss',
@@ -153,12 +158,12 @@ export class Academia implements OnInit {
   abrirEdicao(): void {
     const a = this.academia();
     if (!a) return;
-    this.formCnpj = a.cnpj ?? '';
+    this.formCnpj = formatarCNPJ(a.cnpj ?? '');
     this.formNome = a.name ?? '';
     this.formEndereco = a.address ?? '';
     this.formResponsavel = a.responsible ?? '';
     this.formEmail = a.email ?? '';
-    this.formTelefone = a.phone ?? '';
+    this.formTelefone = formatarTelefone(a.phone ?? '');
     this.aviso.set(null);
     this.editando.set(true);
   }
@@ -180,9 +185,20 @@ export class Academia implements OnInit {
       this.aviso.set(this.i18n.instant('ACADEMIA.DASH.REQUIRED_FIELDS'));
       return;
     }
+    const cnpjLimpo = this.formCnpj.replace(/\D/g, '');
+    if (!validarCNPJ(cnpjLimpo)) {
+      this.avisoSeverity.set('error');
+      this.aviso.set(this.i18n.instant('ADMIN.GYMS.CNPJ_INVALID'));
+      return;
+    }
+    if (this.formEmail && !this.formEmail.includes('@')) {
+      this.avisoSeverity.set('error');
+      this.aviso.set(this.i18n.instant('AUTH.EMAIL_INVALID'));
+      return;
+    }
     this.salvando.set(true);
     const req: AcademiaUpdateRequest = {
-      cnpj: this.formCnpj.trim(),
+      cnpj: cnpjLimpo,
       name: this.formNome.trim(),
       address: this.formEndereco.trim(),
       responsible: this.formResponsavel.trim(),
@@ -219,6 +235,11 @@ export class Academia implements OnInit {
       this.aviso.set(this.i18n.instant('PROFILE.NAME_EMAIL_REQUIRED'));
       return;
     }
+    if (!this.cadEmail.includes('@')) {
+      this.avisoSeverity.set('error');
+      this.aviso.set(this.i18n.instant('AUTH.EMAIL_INVALID'));
+      return;
+    }
     if (this.abaCadastro() === 'aluno' && !this.cadPlanoId) {
       this.avisoSeverity.set('error');
       this.aviso.set(this.i18n.instant('ACADEMIA.DASH.SELECT_PLAN'));
@@ -243,6 +264,7 @@ export class Academia implements OnInit {
         this.flash(
           'success',
           this.i18n.instant('ACADEMIA.DASH.REGISTERED_TEMP_PWD', { role: label, nome: req.name, senha }),
+          60000,
         );
         this.cadNome = '';
         this.cadEmail = '';
@@ -258,10 +280,10 @@ export class Academia implements OnInit {
     });
   }
 
-  private flash(severity: 'success' | 'error', msg: string): void {
+  private flash(severity: 'success' | 'error', msg: string, duration = 6000): void {
     this.avisoSeverity.set(severity);
     this.aviso.set(msg);
-    setTimeout(() => this.aviso.set(null), 6000);
+    setTimeout(() => this.aviso.set(null), duration);
   }
 
   inicial(nome: string): string {

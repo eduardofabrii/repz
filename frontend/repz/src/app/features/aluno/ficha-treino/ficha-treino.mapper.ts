@@ -40,6 +40,8 @@ export interface HistoricoVM {
   objetivo: string;
   criadaEm: string;
   encerradaEm: string;
+  divisao: string;
+  exercicios: ExercicioVM[];
 }
 
 // ---------------------------------------------------------------
@@ -117,5 +119,15 @@ export function mapearHistorico(treinos: TreinoResponse[]): HistoricoVM[] {
     objetivo: t.objetivo || '—',
     criadaEm: formatarData(t.dataInclusao),
     encerradaEm: formatarData(t.dataAlteracao),
+    divisao: t.divisao ?? '—',
+    exercicios: (t.exercicios ?? []).map((e) => ({
+      nome: e.nomeExercicio,
+      grupo: e.grupoMuscular ?? '—',
+      series: e.series ?? '—',
+      reps: e.repeticoes ?? '—',
+      carga: e.cargaKg != null ? `${e.cargaKg} kg` : '—',
+      descanso: e.descansoSegundos != null ? `${e.descansoSegundos}s` : '—',
+      obs: e.observacao || undefined,
+    })),
   }));
 }

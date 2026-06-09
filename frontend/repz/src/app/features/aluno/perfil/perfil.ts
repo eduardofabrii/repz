@@ -3,6 +3,8 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AlunoDetalheResponse, AlunoService, AuthService, UserService } from '@core/services';
 import type { AlunoMeUpdateRequest } from '@core/services';
+import { formatarTelefone } from '@core/validators/cpf-cnpj';
+import { PhoneMaskDirective } from '@core/validators/phone-mask.directive';
 import { AppShell } from '@shared/layout';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ButtonModule } from 'primeng/button';
@@ -26,6 +28,7 @@ import { TagModule } from 'primeng/tag';
     MessageModule,
     ProgressSpinnerModule,
     TagModule,
+    PhoneMaskDirective,
   ],
   templateUrl: './perfil.html',
   styleUrl: './perfil.scss',
@@ -63,7 +66,7 @@ export class Perfil implements OnInit {
         this.aluno.set(a);
         this.userService.setFotoUrl(a.fotoUrl ?? null);
         this.nome = a.nome ?? '';
-        this.telefone = a.telefone ?? '';
+        this.telefone = formatarTelefone(a.telefone ?? '');
         this.carregando.set(false);
       },
       error: () => {
@@ -83,7 +86,7 @@ export class Perfil implements OnInit {
   cancelarEdicao(): void {
     const a = this.aluno();
     this.formNome = a?.nome ?? '';
-    this.formTelefone = a?.telefone ?? '';
+    this.telefone = formatarTelefone(a?.telefone ?? '');
     this.novaSenha = '';
     this.confirmarSenha = '';
     this.editando.set(false);
@@ -113,7 +116,7 @@ export class Perfil implements OnInit {
 
     const req: AlunoMeUpdateRequest = {
       nome: this.formNome.trim(),
-      telefone: this.formTelefone.trim() || undefined,
+      telefone: this.telefone.trim() || undefined,
       senha: this.novaSenha.trim() || undefined,
     };
 
@@ -121,7 +124,7 @@ export class Perfil implements OnInit {
       next: (a) => {
         this.aluno.set(a);
         this.formNome = a.nome ?? '';
-        this.formTelefone = a.telefone ?? '';
+        this.telefone = formatarTelefone(a.telefone ?? '');
         this.novaSenha = '';
         this.confirmarSenha = '';
         this.salvando.set(false);
