@@ -55,13 +55,6 @@ function hojeBR(d = new Date()): string {
   return `${dia}/${mes}/${d.getFullYear()}`;
 }
 
-/** Amanhã em BR — cobre servidores UTC que ficam até 3h na frente */
-function amanhaBS(): string {
-  const d = new Date();
-  d.setDate(d.getDate() + 1);
-  return hojeBR(d);
-}
-
 /** Chave usada no localStorage — formato "dd/MM/yyyy" */
 const STORAGE_KEY = 'repz_checkin_hoje';
 
@@ -96,12 +89,8 @@ export class FrequenciaService {
     return this.http.get<FrequenciaResponse[]>(`${this.base}/me`).pipe(
       tap((lista) => {
         this.statusCarregado = true;
-        // Compara com hoje E amanhã: servidor UTC pode gravar 1 dia à frente
         const hoje = hojeBR();
-        const amanha = amanhaBS();
-        const fezHoje = lista.some(
-          (c) => c.dataHora?.startsWith(hoje) || c.dataHora?.startsWith(amanha),
-        );
+        const fezHoje = lista.some((c) => c.dataHora?.startsWith(hoje));
         if (fezHoje) {
           this.marcarHoje();
         } else {

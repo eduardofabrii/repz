@@ -1,5 +1,6 @@
 package repz.app.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,6 +28,7 @@ public class AvaliacaoFisicaGraficoResponse {
     @NoArgsConstructor
     @Schema(description = "Ponto de evolução física no gráfico")
     public static class DadoGrafico {
+        @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
         private LocalDateTime data;
         private Double peso;
         private Double imc;

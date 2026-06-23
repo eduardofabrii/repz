@@ -1,5 +1,6 @@
 package repz.app.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class FrequenciaRelatorioResponse {
     private Long academiaId;
 
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss")
     private Map<String, LocalDateTime> periodo;
 
     private Long totalFrequencias;
